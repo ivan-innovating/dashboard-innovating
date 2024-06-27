@@ -30,4 +30,7 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::get('/admin/priorizar-empresa/id/{id}', [\App\Http\Controllers\DashboardEmpresasController::class, 'viewPriorizar'])->name('viewpriorizar');
     Route::post('/admin/aceptapriorizar', [\App\Http\Controllers\DashboardEmpresasController::class, 'aceptaPriorizar'])->name('adminaceptapriorizar');
     Route::post('/admin/rechazapriorizar', [\App\Http\Controllers\DashboardEmpresasController::class, 'rechazaPriorizar'])->name('adminrechazapriorizar');
+    Route::get('/admin/ver-validacion/id/25{id}', [\App\Http\Controllers\DashboardEmpresasController::class, 'viewValidacion'])->name('adminviewvalidacion');
+    Route::post('/aceptarvalidacion', [\App\Http\Controllers\DashboardEmpresasController::class, 'aceptarvalidacion'])->name('adminaceptarvalidacion');
+
 });

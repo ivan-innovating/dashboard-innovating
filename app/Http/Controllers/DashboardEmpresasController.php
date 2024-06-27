@@ -92,7 +92,7 @@ class DashboardEmpresasController extends Controller
     
         $validar = ValidateCompany::orderBy('updated_at', 'DESC')->paginate(20);
         return view('admin.empresas.validar', [
-            'empresas' => $validar
+            'validaciones' => $validar
         ]);
     
     }
@@ -541,5 +541,45 @@ class DashboardEmpresasController extends Controller
         return response()->json(['success'=> 'Solicitud rechazada.']);
     }
 
+
+    public function viewValidacion($id){
+
+        $validar = ValidateCompany::find($id);
+
+        if(!$validar){
+            return abort(404);
+        }
+
+        $ccaas = getAllCcaas();
+        $paises = \App\Models\Paises::all();
+        $cnaes = \App\Models\Cnaes::all();
+
+        return view('admin.empresas.viewvalidacion', [
+            'validacion' => $validar,
+            'ccaas' => $ccaas,
+            'paises' => $paises,
+            'cnaes' => $cnaes,
+        ]);
+    }
+
+
+    public function aceptarValidacion(Request $request){
+
+        if(Auth::check() && isSuperAdmin()){
+
+            try{
+                \App\Models\ValidateCompany::where('id', $request->get('id'))->update([
+                    'aceptado' => 1,
+                    'usuariovalidacion' => Auth::user()->email
+                ]);
+            }catch(Exception $e){
+                Log::error($e->getMessage());
+                return redirect()->back()->withErrors('No se ha podido actualizar la solicitud de validación en estos momentos, intentalo de nuevo más tarde');
+            }
+
+        }
+
+        return redirect()->back()->withSuccess('Actualizada la solicitud de validación a "ACEPTADA".');
+    }
 
 }

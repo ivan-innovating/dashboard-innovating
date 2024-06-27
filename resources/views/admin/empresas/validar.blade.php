@@ -39,11 +39,11 @@
                             @foreach($validaciones as $validacion)
                                 <tr>
                                     <td>
-                                        <a href="{{route('viewvalidacion', $validacion->id)}}" class="btn btn-primary btn-sm"><i class="fa fa-edit"></i></a>
-                                        {{Form::open(['url' => route('aceptarvalidacion'), 'class' => 'aceptarvalidacion d-inline', 'method' => 'POST'])}}
-                                            {{Form::hidden('id', $validacion->id)}}                                                                            
+                                        <a href="{{route('adminviewvalidacion', $validacion->id)}}" class="btn btn-primary btn-sm"><i class="fa fa-edit"></i></a>                                        
+                                        {{ html()->form('POST', route('adminaceptarvalidacion'))->class('aceptarvalidacion d-inline')->open()}}  
+                                            {{ html()->hidden('id', $validacion->id)}}                                                                            
                                             <button class="btn btn-warning btn-sm" title="Aceptar validación"><i class="fa-solid fa-building-circle-check"></i></button>
-                                        {{Form::close()}}
+                                        {{ html()->form()->close()}}
                                     </td>
                                     <td>
                                         {{$validacion->user_id}}: {{$validacion->solicitante->email}}
