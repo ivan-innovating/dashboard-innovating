@@ -17,7 +17,7 @@ use App\Http\Middleware\CheckUserRole;
 
 Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() {
 
-    
+    ### RUTAS PARA GESTION DE EMPRESAS SUPERADMIN
     Route::get('/admin/empresas', [\App\Http\Controllers\DashboardEmpresasController::class, 'empresas'])->name('adminempresas');
     Route::get('/admin/empresas/buscar', [\App\Http\Controllers\DashboardEmpresasController::class, 'buscarEmpresas'])->name('adminempresasbuscar');
     Route::get('/admin/centros', [\App\Http\Controllers\DashboardEmpresasController::class, 'centros'])->name('admincentros');
@@ -30,7 +30,18 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::get('/admin/priorizar-empresa/id/{id}', [\App\Http\Controllers\DashboardEmpresasController::class, 'viewPriorizar'])->name('viewpriorizar');
     Route::post('/admin/aceptapriorizar', [\App\Http\Controllers\DashboardEmpresasController::class, 'aceptaPriorizar'])->name('adminaceptapriorizar');
     Route::post('/admin/rechazapriorizar', [\App\Http\Controllers\DashboardEmpresasController::class, 'rechazaPriorizar'])->name('adminrechazapriorizar');
-    Route::get('/admin/ver-validacion/id/25{id}', [\App\Http\Controllers\DashboardEmpresasController::class, 'viewValidacion'])->name('adminviewvalidacion');
+    Route::get('/admin/ver-validacion/id/{id}', [\App\Http\Controllers\DashboardEmpresasController::class, 'viewValidacion'])->name('adminviewvalidacion');
     Route::post('/aceptarvalidacion', [\App\Http\Controllers\DashboardEmpresasController::class, 'aceptarvalidacion'])->name('adminaceptarvalidacion');
 
+    ### RUTAS PARA GESTION DE AYUDAS Y CONVOCATORIAS SUPERADMIN
+    Route::get('/admin/ayudas', [\App\Http\Controllers\DashboardAyudasController::class, 'ayudas'])->name('adminayudas');
+    Route::get('/admin/crearayuda', [\App\Http\Controllers\DashboardAyudasController::class, 'crearAyuda'])->name('admincrearayuda');
+    Route::post('/admin/saveayuda', [\App\Http\Controllers\DashboardAyudasController::class, 'saveAyuda'])->name('adminsaveayuda');
+    Route::get('/admin/editarayuda/id/{id}', [\App\Http\Controllers\DashboardAyudasController::class, 'editarAyuda'])->name('admineditarayuda');
+    Route::post('/admin/editayuda', [\App\Http\Controllers\DashboardAyudasController::class, 'editAyuda'])->name('admineditayuda');
+    Route::get('/admin/convocatorias', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'convocatorias'])->name('adminconvocatorias');
+    Route::get('/admin/editarconvocatoria/id/{id}', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'editarConvocatoria'])->name('admineditarconvocatoria');
+    Route::post('/admin/buscarconvocatorias', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'buscarConvocatorias'])->name('adminbuscarconvocatorias');
+    Route::post('/admin/editconvocatoria', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'editConvocatoria'])->name('admineditconvocatoria');
+    
 });

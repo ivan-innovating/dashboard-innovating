@@ -326,16 +326,16 @@ return [
         [
             'text' => 'Empresas',
             'icon' => 'fas fa-fw fa-building',
-            'submenu' => [
-                [
-                    'text' => 'Buscar empresas',
-                    'url' => 'admin/empresas/buscar',
-                    'icon' => 'fas fa-fw fa-magnifying-glass',
-                ],
+            'submenu' => [               
                 [
                     'text' => 'Empresas',
                     'url' => 'admin/empresas',
                     'icon' => 'fas fa-fw fa-building',
+                ],
+                [
+                    'text' => 'Buscar empresas',
+                    'url' => 'admin/empresas/buscar',
+                    'icon' => 'fas fa-fw fa-magnifying-glass',
                 ],
                 [
                     'text' => 'Centros tecnológicos',
@@ -356,13 +356,64 @@ return [
         ],
         [
             'text' => 'Ayudas/Convocatorias',
-            'url' => 'admin/settings',
             'icon' => 'fas fa-fw fa-file-invoice-dollar',
+            'submenu' => [
+                [
+                    'text' => 'Ayudas',
+                    'url' => 'admin/ayudas',
+                    'icon' => 'fas fa-fw fa-file-invoice-dollar',
+                ],
+                [
+                    'text' => 'Crear Ayuda',
+                    'url' => 'admin/crearayuda',
+                    'icon' => 'fas fa-fw fa-plus',
+                ],
+                [
+                    'text' => 'Convocatorias',
+                    'url' => 'admin/convocatorias',
+                    'icon' => 'fas fa-fw fa-bullhorn',
+                ],
+                [
+                    'text' => 'Crear Convocatoria',
+                    'url' => 'admin/settings',
+                    'icon' => 'fas fa-fw fa-plus',
+                ],
+                [
+                    'text' => 'Duplicar Convocatoria',
+                    'url' => 'admin/settings',
+                    'icon' => 'fas fa-fw fa-clone',
+                ],
+            ]
+        ],
+        [
+            'text' => 'Fondos/Subfondos',
+            'icon' => 'fas fa-fw fa-sack-dollar',
+            'submenu' => [
+                [
+                    'text' => 'Fondos',
+                    'url' => 'admin/settings',
+                    'icon' => 'fas fa-fw fa-sack-dollar',
+                ],
+                [
+                    'text' => 'Subfondos',
+                    'url' => 'admin/settings',
+                    'icon' => 'fas fa-fw fa-money-bill-transfer',
+                ],
+                [
+                    'text' => 'Type of Actions',
+                    'url' => 'admin/settings',
+                    'icon' => 'fas fa-fw fa-location-crosshairs',
+                ],
+                [
+                    'text' => 'Budget Year Map',
+                    'url' => 'admin/settings',
+                    'icon' => 'fas fa-fw fa-calendar',
+                ],                
+            ]
         ],
         [
             'text' => 'Organismos',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-arrow-down-wide-short',
+            'icon' => 'fas fa-fw fa-building-columns',
             'submenu' => [
                 [
                     'text' => 'Organos',
@@ -388,7 +439,7 @@ return [
         ],
         [
             'text' => 'Proyectos',
-            'icon' => 'fas fa-fw fa-arrow-down-wide-short',
+            'icon' => 'fas fa-fw fa-pen-ruler',
             'submenu' => [
                 [
                     'text' => 'Proyectos importados',
