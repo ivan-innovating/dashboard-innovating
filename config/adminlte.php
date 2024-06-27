@@ -325,8 +325,34 @@ return [
         //['header' => 'account_settings'],
         [
             'text' => 'Empresas',
-            'url' => 'admin/settings',
             'icon' => 'fas fa-fw fa-building',
+            'submenu' => [
+                [
+                    'text' => 'Buscar empresas',
+                    'url' => 'admin/empresas/buscar',
+                    'icon' => 'fas fa-fw fa-magnifying-glass',
+                ],
+                [
+                    'text' => 'Empresas',
+                    'url' => 'admin/empresas',
+                    'icon' => 'fas fa-fw fa-building',
+                ],
+                [
+                    'text' => 'Centros tecnológicos',
+                    'url' => 'admin/centros',
+                    'icon' => 'fas fa-fw fa-microscope',
+                ],
+                [
+                    'text' => 'Validar empresas',
+                    'url' => 'admin/validar-empresas',
+                    'icon' => 'fas fa-fw fa-check',
+                ],
+                [
+                    'text' => 'Priorizar empresas',
+                    'url' => 'admin/priorizar-empresas',
+                    'icon' => 'fas fa-fw fa-arrow-up-wide-short',
+                ],
+            ]
         ],
         [
             'text' => 'Ayudas/Convocatorias',

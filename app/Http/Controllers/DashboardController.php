@@ -481,7 +481,7 @@ class DashboardController extends Controller
         $paises = \App\Models\Paises::all();
         $cnaes = \App\Models\Cnaes::all();
 
-        return view('dashboard/empresas', [
+        return view('admin.empresas.empresas', [
             'totalempresas' => $totalempresas+$centros->count(),
             'empresas' => $empresas,
             'centros' => $centros,
@@ -1068,14 +1068,17 @@ class DashboardController extends Controller
             $empresa->NumeroLineasTec = 2;
         }
 
-        $organos = \App\Models\Organos::all()->toArray();
-        $departamentos = \App\Models\Departamentos::all()->toArray();
+        if($empresa->esCentroTecnologico == 1){
 
-        $organismos = array_merge($organos, $departamentos);
-
-        usort($organismos, function($a, $b) {
-            return $a['Nombre'] <=> $b['Nombre'];
-        });
+            $organos = \App\Models\Organos::all()->toArray();
+            $departamentos = \App\Models\Departamentos::all()->toArray();
+            $organismos = array_merge($organos, $departamentos);
+            usort($organismos, function($a, $b) {
+                return $a['Nombre'] <=> $b['Nombre'];
+            });
+        }else{
+            $organismos = array();
+        }
 
         $solicitudes = \App\Models\PriorizaEmpresas::where('cifPrioritario', $cif)->get();
 
