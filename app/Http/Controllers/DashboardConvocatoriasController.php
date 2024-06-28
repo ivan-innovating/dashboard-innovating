@@ -783,7 +783,7 @@ class DashboardConvocatoriasController extends Controller
         $fechamax = ($request->get('encajefechamax') === null && $request->get('encajefechamax') != "") ? null : $request->get('encajefechamax');
 
         if($fechamax !== null && $fechamax != ""){
-            $fechamax = Carbon::createFromFormat('d/m/Y', $fechamax)->format('Y-m-d');
+            $fechamax = Carbon::parse($fechamax)->format('Y-m-d');
         }else{
             $fechamax = null; 
         }
