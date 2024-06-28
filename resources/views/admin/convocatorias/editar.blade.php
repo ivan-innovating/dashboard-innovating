@@ -3,19 +3,17 @@
 @section('title', 'Dashboard')
 
 @section('content_header')
-	<h1>Dashboard</h1>
+	<h1>Dashboard Ayudas/Convocatorias</h1>
+    <button class="btn btn-primary" type="button" onclick="scrollBottom()">Ir a Encajes</button>
 @stop
 
 @section('content')
 <div class="card">
 	<div class="card-header">
-		<h3 class="card-title">Editar Convocatoria {{$ayuda->Titulo}}</h3>
+		<h3 class="card-title cursor-pointer" data-card-widget="collapse" title="Collapse">Editar Convocatoria {{$ayuda->Titulo}}</h3>
 		<div class="card-tools">
 			<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
 			<i class="fas fa-minus"></i>
-			</button>
-			<button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
-				<i class="fas fa-times"></i>
 			</button>
 		</div>
 	</div>
@@ -455,7 +453,7 @@
                     <div id="fechamaxcontent" @if($ayuda->FechaMaxConstitucion === null) class="d-none" @endif>
                         <label for="fechamax">Fecha Max. Constitucion</label><br/>
                         <div class="input-group date" id="fechamax" data-target-input="nearest">
-                            <input type="text" name="fechamax" class="form-control datetimepicker-input" data-target="#fechamax"  aria-describedby="fechamaxhelp"/>
+                            <input type="text" name="fechamax" class="form-control datetimepicker-input fechamax" data-target="#fechamax"  aria-describedby="fechamaxhelp"/>
                             <div class="input-group-append" data-target="#fechamax" data-toggle="datetimepicker">
                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                             </div>
@@ -744,13 +742,225 @@
                 <label for="textocondiciones">Texto Condiciones Garantías</label>
                 <textarea class="form-control" id="textocondiciones" name="textocondiciones" rows="10">{{$ayuda->TextoCondiciones}}</textarea>
             </div>
-            <button type="submit" class="btn btn-primary">Guardar</button>
+            <button type="submit" class="btn btn-primary">Editar Convocatoria</button>
         </form>
 	</div>
 	<div class="card-footer">
 		
 	</div>
 </div>
+
+<h5 class="mt-3 mb-1">Encajes de la Convocatoria {{$ayuda->Titulo}}</h5>
+<a href="{{route('admincrearencaje', $ayuda->id)}}" class="btn btn-primary mt-1 mb-3">{{__('Añadir nuevo encaje')}}</a>
+<br/>
+@foreach($encajes as $encaje)
+    <div class="card collapsed-card">
+        <div class="card-header">
+            <h3 class="card-title cursor-pointer" data-card-widget="collapse" title="Collapse">  
+                @if($encaje->Tipo == "Target")
+                    <i class="fa-solid fa-bullseye fa-xs text-info"></i>
+                @else
+                    <i class="fa-solid fa-tags fa-xs text-info"></i>
+                @endif
+                {{$encaje->Titulo}}  
+                
+            </h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                <i class="fas fa-plus"></i>
+                </button>			
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="text-right">
+                <button class="btn btn-danger btn-sm quitarencaje" data-item="{{$encaje->id}}"><i class="fas fa-times fa-xs"></i> {{__('Borrar encaje')}}</button>
+            </div>
+            <form method="post" action="{{route('admineditencaje')}}" class="editencajes">
+                @csrf
+                <input type="hidden" name="id" value="{{$encaje->id}}"/>
+                <input type="hidden" name="ayuda_id" value="{{$encaje->Ayuda_id}}"/>             
+                <div class="form-group">
+                    <label for="acronimo"><span class="text-danger">*</span> Acronimo</label>
+                    <input type="text" class="form-control" id="acronimo" name="acronimo" value="{{$encaje->Acronimo}}" required>
+                </div>
+                <div class="form-group">
+                    <label for="titulo"><span class="text-danger">*</span> Titulo</label>
+                    <input type="text" class="form-control" id="titulo" name="titulo" value="{{$encaje->Titulo}}" required>
+                </div>
+                <div class="form-group">
+                    <label for="tipo">Tipo</label><br/>
+                    <select name="tipo" class="selectpicker" data-width="100%" title="Selecciona uno..." id="tipoencaje"  aria-describedby="tipoHelp">
+                        <option value="Linea" @if($encaje->Tipo == "Linea") selected @endif>Linea</option>
+                        <option value="Interna" @if($encaje->Tipo == "Interna") selected @endif>Interna</option>
+                        <option value="Target" @if($encaje->Tipo == "Target") selected @endif>Target</option>
+                    </select>
+                    <small id="tipoHelp">* No es posible crear un encaje tipo target si la ayuda no tiene ningún encaje de tipo línea o interna ya creado</small>
+                </div>
+                <div class="form-group">
+                    <label for="encajefechamax">Fecha Max. Constitucion</label><br/>                    
+                    <input type="date" class="form-control" id="encajefechamax" name="encajefechamax" value="{{$encaje->Encaje_fechamax}}" min="{{\Carbon\Carbon::now()->format('Y-m-d')}}" max="{{$ayuda->FechaMaxConstitucion}}" />
+                    <small id="encajefechamaxhelp" class="form-text text-muted">Un campo vaćio indica que la ayuda no tiene Fecha Max. Constitución, Formato fecha: dd/mm/yyyy</small>
+                </div>
+                <div class="form-group">
+                <label for="cate">Categorías</label><br/>
+                    <select name="cate" class="selectpicker" multiple data-width="100%" title="Selecciona uno..." disabled>
+                        @if($ayuda->Categoria !== null && is_array(json_decode($ayuda->Categoria)))
+                            @if(in_array("Micro", json_decode($ayuda->Categoria)))
+                                <option value="Micro" selected="selected">Micro</option>
+                            @else
+                                <option value="Micro">Micro</option>
+                            @endif
+                            @if(in_array("Pequeña", json_decode($ayuda->Categoria)))
+                                <option value="Pequeña" selected="selected">Pequeña</option>
+                            @else
+                                <option value="Pequeña">Pequeña</option>
+                            @endif
+                            @if(in_array("Mediana", json_decode($ayuda->Categoria)))
+                                <option value="Mediana" selected="selected">Mediana</option>
+                            @else
+                                <option value="Mediana">Mediana</option>
+                            @endif
+                            @if(in_array("Grande", json_decode($ayuda->Categoria)))
+                                <option value="Grande" selected="selected">Grande</option>
+                            @else
+                                <option value="Grande">Grande</option>
+                            @endif
+                        @else
+                            <option value="Micro">Micro</option>
+                            <option value="Pequeña">Pequeña</option>
+                            <option value="Mediana">Mediana</option>
+                            <option value="Grande">Grande</option>
+                        @endif
+                    </select>
+                    <small id="catehelp" class="form-text text-muted">Los encajes tienen las categorías asignadas en la convocatoria, no son editables</small>
+                </div>
+                <div id="cnaesencajes" class="form-group">
+                    <div class="form-group">
+                        <label for="opcionCNAEEncaje"><span class="text-danger">*</span> Opcion CNAE</label><br/>
+                        <select name="opcionCNAEEncaje" class="selectpicker" data-width="100%" title="Selecciona uno..." required>
+                            @if($encaje->Encaje_opcioncnaes !== null)
+                                <option value="Todos" @if($encaje->Encaje_opcioncnaes == "Todos") selected @endif>Todos</option>
+                                <option value="Válidos" @if($encaje->Encaje_opcioncnaes == "Válidos") selected @endif>Válidos</option>
+                                <option value="Excluidos" @if($encaje->Encaje_opcioncnaes == "Excluidos") selected @endif>Excluidos</option>
+                            @elseif($ayuda->OpcionCNAE == "Válidos")
+                                <option value="Válidos" selected>Válidos</option>
+                                <option value="Excluidos">Excluidos</option>
+                            @elseif($ayuda->OpcionCNAE == "Excluidos")
+                                <option value="Válidos">Válidos</option>
+                                <option value="Excluidos" selected>Excluidos</option>
+                            @else
+                                <option value="Todos" selected>Todos</option>
+                                <option value="Válidos">Válidos</option>
+                                <option value="Excluidos">Excluidos</option>
+                            @endif
+                        </select><br/>
+                        <div id="cnaeseditencajes" @if($encaje->Encaje_opcioncnaes !== null && $encaje->Encaje_opcioncnaes == "Todos") class="d-none" @elseif($encaje->Encaje_opcioncnaes === null && $ayuda->OpcionCNAE == 'Todos') class="d-none" @endif>
+                            <label for="cnaesencaje">CNAES</label><br/>
+                            
+                            <select name="cnaesencaje[]" multiple class="duallistbox" style="height: 250px !important;" id="cnaesencaje">
+                                @if($encaje->Encaje_opcioncnaes !== null && $encaje->Encaje_opcioncnaes != "Todos")
+                                    @foreach($cnaes as $cnae)
+                                        @if($encaje->Encaje_cnaes !== null && in_array($cnae->Id_zoho, json_decode($encaje->Encaje_cnaes, true)))
+                                            <option value="{{$cnae->Id_zoho}}" selected="selected">{{$cnae->Nombre}}</option>
+                                        @else
+                                            <option value="{{$cnae->Id_zoho}}">{{$cnae->Nombre}}</option>
+                                        @endif
+                                    @endforeach
+                                @elseif($ayuda->OpcionCNAE != "Todos")
+                                    @if($ayuda->CNAES != "null" && !empty($ayuda->CNAES))
+                                        @foreach($cnaes as $cnae)
+                                            @if($ayuda->CNAES)
+                                                @if(in_array($cnae->Id_zoho, json_decode($ayuda->CNAES, true)))
+                                                    <option value="{{$cnae->Id_zoho}}" selected="selected">{{$cnae->Nombre}}</option>
+                                                @else
+                                                    <option value="{{$cnae->Id_zoho}}">{{$cnae->Nombre}}</option>
+                                                @endif
+                                            @else
+                                                <option value="{{$cnae->Id_zoho}}">{{$cnae->Nombre}}</option>
+                                            @endif
+                                        @endforeach
+                                    @else
+                                        @foreach($cnaes as $cnae)
+                                            @if(in_array($cnae->Id_zoho, json_decode($encaje->Encaje_cnaes, true)))
+                                                <option value="{{$cnae->Id_zoho}}">{{$cnae->Nombre}}</option>
+                                            @else
+                                                <option value="{{$cnae->Id_zoho}}">{{$cnae->Nombre}}</option>
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                @else
+                                    @foreach($cnaes as $cnae)
+                                        <option value="{{$cnae->Id_zoho}}">{{$cnae->Nombre}}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="naturaleza"><span class="text-danger">*</span> Naturaleza Empresa</label><br/>
+                    <select name="naturaleza[]" id="naturaleza" class="selectpicker" multiple data-width="100%" title="Selecciona..." required>
+                        @foreach($naturalezas as $naturaleza)
+                            <option value="{{$naturaleza->id}}" @if(in_array($naturaleza->id, json_decode($encaje->naturalezaPartner))) selected @endif>{{$naturaleza->NombreNaturaleza}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="encajeintereses"><span class="text-danger">*</span> Perfil Financiación</label><br/>
+                    <select name="encajeintereses[]" id="encajeintereses" class="selectpicker" multiple data-width="100%" data-live-search="true" title="Selecciona..." required>
+                        @foreach($intereses as $interes)
+                            @if($interes->id == 1 || $interes->id == 10 || $interes->id == 11)
+                                @continue
+                            @endif
+                            <option value="{{$interes->Id_zoho}}" @if(in_array($interes->Id_zoho, json_decode($encaje->PerfilFinanciacion))) selected @endif>{{$interes->Nombre}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="descripcion">Descripción</label>
+                    <textarea class="form-control descripcion" id="descripcion" rows="5" name="descripcion">{{strip_tags($encaje->Descripcion)}}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="palabrases">Palabras clave ES</label>
+                    <textarea class="form-control" id="palabrases" name="palabrases" aria-describedby="pcesHelp">{{$encaje->PalabrasClaveES}}</textarea>
+                    <small id="pcesHelp" class="form-text text-muted">Las palabras clave van separadas cada uno por una coma.</small>
+                </div>
+                <div class="form-group">
+                    <label for="palabrasen">Palabras clave EN</label>
+                    <textarea class="form-control" id="palabrasen" name="palabrasen" aria-describedby="pcenHelp">{{$encaje->PalabrasClaveEN}}</textarea>
+                    <small id="pcenHelp" class="form-text text-muted">Las palabras clave van separadas cada uno por una coma.</small>
+                </div>
+                <div class="form-group">
+                    <label for="tags">Tags Tecnología</label><br/>
+                    <select class="tags-encaje" multiple="multiple" name="tags[]" style="width:100%">
+                        @if($encaje->TagsTec !== null && $encaje->TagsTec != "")
+                            @if(is_array(json_decode($encaje->TagsTec)))
+                                @foreach(json_decode($encaje->TagsTec) as $tag)
+                                    <option value="{{$tag}}" class="text-dark" selected>{{$tag}}</option>
+                                @endforeach
+                            @elseif(is_array(explode(",", $encaje->TagsTec)))
+                                @foreach(explode(",", $encaje->TagsTec) as $tag)
+                                    <option value="{{$tag}}" class="text-dark" selected>{{$tag}}</option>
+                                @endforeach
+                            @endif
+                        @endif
+                    </select>
+                    <small id="tagsHelp" class="form-text text-muted">Máximo 20 tags tecnología por encaje.</small>
+                </div>
+                @if($encaje->keywords !== null)
+                <div class="form-group chatgptkeywords">
+                    <p>{{__('Chat GPT Keywords')}}</p>
+                    <label>{{$encaje->keywords->keywords}}</label>
+                </div>
+                @endif            
+                <button type="submit" class="btn btn-primary">Editar Encaje {{$encaje->Acronimo}}</button>              
+            </form>
+        </div>
+        <div class="card-footer">
+            
+        </div>
+    </div>
+@endforeach
 <div class="modal fade" id="organismoModal" tabindex="-1" role="dialog" aria-labelledby="organismoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -781,17 +991,11 @@
     </div>
 </div>
 @stop
-
 @section('css')
 	<link rel="stylesheet" href="/css/admin_custom.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
             integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
             crossorigin="anonymous" referrerpolicy="no-referrer" />
-	<style>
-		.nav-sidebar .menu-open>.nav-treeview {
-			margin-left: 0.75rem;
-		}
-	</style>
 @stop
 
 @section('js')
@@ -806,12 +1010,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/js/tempusdominus-bootstrap-4.min.js" integrity="sha512-k6/Bkb8Fxf/c1Tkyl39yJwcOZ1P4cRrJu77p83zJjN2Z55prbFHxPs9vN7q3l3+tSMGPDdoH51AEU8Vgo1cgAA==" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/css/tempusdominus-bootstrap-4.min.css" integrity="sha512-3JRrEUwaCkFUBLK1N8HehwQgu8e23jTH4np5NHOmQOobuC4ROQxFwFgBLTnhcnQRMs84muMh0PnnwXlPq5MGjg==" crossorigin="anonymous" />
     <!-- Bootstrap4 Duallistbox -->
-    <script src="{{asset('js/plugins/jquery.bootstrap-duallistbox.min.js')}}"></script>
-    <link rel="stylesheet" href="{{asset('css/plugins/bootstrap-duallistbox.min.css')}}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap4-duallistbox/4.0.2/jquery.bootstrap-duallistbox.min.js" integrity="sha512-l/BJWUlogVoiA2Pxj3amAx2N7EW9Kv6ReWFKyJ2n6w7jAQsjXEyki2oEVsE6PuNluzS7MvlZoUydGrHMIg33lw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap4-duallistbox/4.0.2/bootstrap-duallistbox.min.css" integrity="sha512-BcFCeKcQ0xb020bsj/ZtHYnUsvPh9jS8PNIdkmtVoWvPJRi2Ds9sFouAUBo0q8Bq0RA/RlIncn6JVYXFIw/iQA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- jQuery Alerts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 	<script>  
+        $(document).ready(function() {
+            $(".tags-encaje").select2({
+                tags: true,
+                maximumSelectionLength: 20,
+                width: 'resolve' 
+            });       
+        });
         $(".buscarorganismos").on('click', function(e){
             var text = $("#textoOrganismos").val();
 
@@ -890,11 +1103,6 @@
             format: 'DD/MM/YYYY',
             viewMode: 'years',
             defaultDate: "{{$ayuda->FechaMinConstitucion}}"
-        });
-        $('#encajefechamax').datetimepicker({
-            format: 'DD/MM/YYYY',
-            viewMode: 'years',
-            defaultDate: "{{$ayuda->FechaMaxConstitucion}}"
         });
         $(".editarconvocatoria input").each(function() {
             var element = $(this);
@@ -1032,5 +1240,23 @@
                 }
             });
         });
+ 
+        $('.editencajes select[name="opcionCNAEEncaje"]').on("changed.bs.select", function(e){
+            if($(this).val() == "Todos"){
+                $('#cnaeseditencajes').addClass('d-none');
+                $('.editencajes select[name="cnaesencaje"]').attr('required', false);
+            }else{
+                $('#cnaeseditencajes').removeClass('d-none');
+                $('.editencajes select[name="cnaesencaje"]').attr('required', true);
+                $('.editencajes .duallistbox').bootstrapDualListbox('refresh', true);
+            }
+        });
+
+        function scrollBottom(){             
+            window.scroll({
+                top:  $(document).height(),
+                behavior: 'smooth'
+            });          
+        }
     </script>
 @stop   

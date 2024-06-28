@@ -1,0 +1,11 @@
+.cursor-pointer{
+    cursor: pointer;
+}
+.nav-sidebar .menu-open>.nav-treeview {
+    margin-left: 0.75rem;
+}
+.select2-selection__choice__display{
+    color: #000;
+    padding-left: 0.75rem!important;
+    padding-right: 0.75rem!important;
+}

@@ -43,5 +43,11 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::get('/admin/editarconvocatoria/id/{id}', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'editarConvocatoria'])->name('admineditarconvocatoria');
     Route::post('/admin/buscarconvocatorias', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'buscarConvocatorias'])->name('adminbuscarconvocatorias');
     Route::post('/admin/editconvocatoria', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'editConvocatoria'])->name('admineditconvocatoria');
-    
+    Route::get('/admin/crearconvocatoria', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'crearConvocatoria'])->name('admincrearconvocatoria'); 
+    Route::post('/admin/saveconvocatoria', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'saveConvocatoria'])->name('adminsaveconvocatoria');
+    Route::get('/admin/duplicarconvocatoria', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'duplicarConvocatoria'])->name('adminduplicarconvocatoria'); 
+    Route::post('/admin/cloneconvocatoria', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'cloneConvocatoria'])->name('admincloneconvocatoria');
+    Route::post('/admin/editencaje', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'editEncaje'])->name('admineditencaje');
+    Route::get('/admin/crearencaje/id/{id}', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'crearEncaje'])->name('admincrearencaje');
+    Route::post('/admin/saveencaje', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'saveEncaje'])->name('adminsaveencaje');
 });

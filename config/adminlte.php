@@ -63,12 +63,12 @@ return [
     |
     */
 
-    'logo' => '<b>Admin</b>LTE',
-    'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
+    'logo' => '<b>Innovating</b>.works',
+    'logo_img' => 'img/logo-sm.jpg',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
-    'logo_img_alt' => 'Admin Logo',
+    'logo_img_alt' => 'Innovating.works',
 
     /*
     |--------------------------------------------------------------------------
@@ -86,7 +86,7 @@ return [
     'auth_logo' => [
         'enabled' => false,
         'img' => [
-            'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
+            'path' => 'img/logo-sm.jpg',
             'alt' => 'Auth Logo',
             'class' => '',
             'width' => 50,
@@ -113,8 +113,8 @@ return [
         'enabled' => true,
         'mode' => 'fullscreen',
         'img' => [
-            'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
-            'alt' => 'AdminLTE Preloader Image',
+            'path' => 'img/logo-sm.jpg',
+            'alt' => 'Innovating Preloader Image',
             'effect' => 'animation__shake',
             'width' => 60,
             'height' => 60,
@@ -375,12 +375,12 @@ return [
                 ],
                 [
                     'text' => 'Crear Convocatoria',
-                    'url' => 'admin/settings',
+                    'url' => 'admin/crearconvocatoria',
                     'icon' => 'fas fa-fw fa-plus',
                 ],
                 [
                     'text' => 'Duplicar Convocatoria',
-                    'url' => 'admin/settings',
+                    'url' => 'admin/duplicarconvocatoria',
                     'icon' => 'fas fa-fw fa-clone',
                 ],
             ]

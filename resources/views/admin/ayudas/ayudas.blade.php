@@ -3,13 +3,13 @@
 @section('title', 'Dashboard')
 
 @section('content_header')
-	<h1>Dashboard</h1>
+	<h1>Dashboard Ayudas/Convocatorias</h1>
 @stop
 
 @section('content')
 <div class="card">
 	<div class="card-header">
-		<h3 class="card-title">Ayudas</h3>
+		<h3 class="card-title">Listado de Ayudas</h3>
 		<div class="card-tools">
 			<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
 			<i class="fas fa-minus"></i>

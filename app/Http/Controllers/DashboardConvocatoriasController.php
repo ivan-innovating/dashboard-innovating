@@ -91,11 +91,10 @@ class DashboardConvocatoriasController extends Controller
             return abort(419);
         }
 
-        $intereses = \App\Models\Intereses::where('defecto', 'true')->get();
-        
+        $intereses = \App\Models\Intereses::where('defecto', 'true')->get();        
         $ccaas = \App\Models\Ccaa::orderBy('Nombre')->get();
         $cnaes = \App\Models\Cnaes::all();        
-        $encajes = \App\Models\Encaje::where('Ayuda_id', $id)->get();
+        $encajes = \App\Models\Encaje::where('Ayuda_id', $id)->where('Tipo', '!=', 'Proyecto')->orderByDesc('updated_at')->orderByDesc('created_at')->get();
 
         $org = null;
         $org = \App\Models\Organos::where('id', $convocatoria->Organismo)->first();
@@ -109,12 +108,6 @@ class DashboardConvocatoriasController extends Controller
         }
 
         #$convocatorias = DB::table('convocatorias')->whereJsonContains('id_ayudas', $id)->get();
-
-        foreach($encajes as $encaje){
-            if(is_array($encaje->TagsTec)){
-                $encaje->TagsTec = json_decode($encaje->TagsTec, true);
-            }
-        }
 
         $trls = \App\Models\Trl::all();
         $naturalezas = \App\Models\Naturalezas::where('Activo', 1)->get();
@@ -553,5 +546,384 @@ class DashboardConvocatoriasController extends Controller
         }
             
         return redirect()->back()->withSuccess("Ayuda actualizada");
+    }
+
+    public function crearConvocatoria(){
+
+        $organos = \App\Models\Organos::get();
+        $departamentos = \App\Models\Departamentos::get();
+
+        return view('admin.convocatorias.crear', [
+            'organos' => $organos,
+            'departamentos' => $departamentos
+        ]);
+    }
+
+    public function saveConvocatoria(Request $request){
+
+        $organismo = ($request->get('organo') !== null) ? $request->get('organo') : $request->get('departamento');
+
+        if($organismo === null){
+            return redirect()->back()->withErrors('No se ha seleccionado un organismo');
+        }
+        $name = $request->get('titulo');
+
+        $arraycoincidences = array(",", ".", "(",")", "/", "|", "\\");
+        $uriArray = explode(' ', mb_strtolower($name));
+        $uri = '';
+
+        if(count($uriArray) > 15){
+            for($i = 0; $i < 14; $i++){
+                $uri .= $uriArray[$i]."-";
+            }
+            $uri = substr($uri, 0, -1);
+        }else{
+            $uri = mb_strtolower(preg_replace('/\s+/', '-', trim($name)));
+        }
+
+        $uri = str_replace($arraycoincidences, '', $uri);
+        $checkUri = \App\Models\Ayudas::where('Uri', $uri)->first();
+
+        if($checkUri){
+            $uri .= (string) rand(0,9999);
+        }
+
+        $uri = quitar_tildes($uri);
+
+        try{
+            $convocatoria = new \App\Models\Ayudas();                            
+            $convocatoria->Organismo = $organismo;
+            $convocatoria->Titulo = $name;
+            $convocatoria->Uri = iconv("UTF-8", "ASCII//TRANSLIT", $uri);
+            $convocatoria->TipoFinanciacion = json_encode(array());
+            $convocatoria->Publicada = 0;
+            $convocatoria->IdConvocatoriaStr = '';
+            $convocatoria->naturalezaConvocatoria = '';
+            $convocatoria->LastEditor = Auth::user()->email;
+            $convocatoria->created_at = Carbon::now();
+            $convocatoria->save();
+        }catch(Exception $e){
+            Log::error($e->getMessage());
+            return redirect()->back()->withErrors('Error en la creación de la ayuda');
+        }
+
+        return redirect()->route('admineditarconvocatoria', $convocatoria->id)->withSuccess('Se ha creado correctamente la convocatoria');
+
+    }
+
+    public function duplicarConvocatoria(){
+
+        $ayudasselect = \App\Models\Ayudas::select('Titulo','Acronimo','id')->get();
+
+        return view('admin.convocatorias.clone',[
+            'ayudas' => $ayudasselect
+        ]);
+
+    }
+
+    public function cloneConvocatoria(Request $request){
+
+        $ayudabase = \App\Models\Ayudas::where('id', $request->get('ayuda'))->first();
+
+        if($ayudabase){
+
+            if($ayudabase->Acronimo !== null){
+                $acronimo = cleanUriBeforeSave($ayudabase->Acronimo);
+            }else{
+                $acronimo = cleanUriBeforeSave($ayudabase->Titulo);
+            }
+
+            $idAcronimo = rtrim(mb_strtoupper(mb_substr(str_replace(" ","",$acronimo),0,6)));
+            $idAcronimo .= Carbon::now()->format('Y')."#";
+
+            $checkIdConvStr = \App\Models\Ayudas::where('IdConvocatoriaStr', 'LIKE', $idAcronimo."%")->count();
+
+            if($checkIdConvStr > 0){
+                $idAcronimo .= $checkIdConvStr+1;
+            }else{
+                $idAcronimo .= "1";
+            }
+
+            try{
+                $convocatoria = new \App\Models\Ayudas();
+                $convocatoria->Acronimo = $ayudabase->Acronimo;
+                $convocatoria->Titulo = $ayudabase->Titulo;
+                $convocatoria->Presentacion = $ayudabase->Presentacion;
+                $convocatoria->Link = $ayudabase->Link;
+                $convocatoria->Organismo = $ayudabase->Organismo;
+                $convocatoria->PerfilFinanciacion = $ayudabase->PerfilFinanciacion;
+                $convocatoria->FechaMax = $ayudabase->FechaMax;
+                $convocatoria->Meses = $ayudabase->Meses;
+                $convocatoria->FechaMaxConstitucion = $ayudabase->FechaMaxConstitucion;
+                $convocatoria->Categoria = $ayudabase->Categoria;
+                $convocatoria->Presupuesto = $ayudabase->Presupuesto;
+                $convocatoria->Ambito = $ayudabase->Ambito;
+                $convocatoria->OpcionCNAE = $ayudabase->OpcionCNAE;
+                $convocatoria->CNAES = $ayudabase->CNAES;
+                $convocatoria->DescripcionCorta = $ayudabase->DescripcionCorta;
+                $convocatoria->DescripcionLarga = $ayudabase->DescripcionLarga;
+                $convocatoria->RequisitosTecnicos = $ayudabase->RequisitosTecnicos;
+                $convocatoria->Convocatoria = $ayudabase->Convocatoria;
+                $convocatoria->Inicio = $ayudabase->Inicio;
+                $convocatoria->Fin = $ayudabase->Fin;
+                $convocatoria->fechaEmails = $ayudabase->fechaEmails;
+                $convocatoria->Estado = $ayudabase->Estado;
+                $convocatoria->Competitiva = $ayudabase->Competitiva;
+                $convocatoria->Uri = (string) rand(0,9999);
+                $convocatoria->Ccaas = $ayudabase->Ccaas;
+                $convocatoria->Featured = $ayudabase->Featured;
+                $convocatoria->TipoFinanciacion = $ayudabase->TipoFinanciacion;
+                $convocatoria->CapitulosFinanciacion = $ayudabase->CapitulosFinanciacion;
+                $convocatoria->CentroTecnologico = $ayudabase->CentroTecnologico;
+                $convocatoria->CondicionesFinanciacion = $ayudabase->CondicionesFinanciacion;
+                $convocatoria->PresupuestoMin = $ayudabase->PresupuestoMin;
+                $convocatoria->PresupuestoMax = $ayudabase->PresupuestoMax;
+                $convocatoria->DuracionMin = $ayudabase->DuracionMin;
+                $convocatoria->DuracionMax = $ayudabase->DuracionMax;
+                $convocatoria->Garantias = $ayudabase->Garantias;
+                $convocatoria->IDInnovating = $ayudabase->IDInnovating;
+                $convocatoria->Trl = $ayudabase->Trl;
+                $convocatoria->objetivoFinanciacion = $ayudabase->objetivoFinanciacion;
+                $convocatoria->PorcentajeFondoPerdido = $ayudabase->PorcentajeFondoPerdido;
+                $convocatoria->PorcentajeCreditoMax = $ayudabase->PorcentajeCreditoMax;
+                $convocatoria->FondoPerdidoMinimo = $ayudabase->FondoPerdidoMinimo;
+                $convocatoria->CreditoMinimo = $ayudabase->CreditoMinimo;
+                $convocatoria->DeduccionMax = $ayudabase->DeduccionMax;
+                $convocatoria->NivelCompetitivo = $ayudabase->NivelCompetitivo;
+                $convocatoria->TiempoMedioResolucion = $ayudabase->TiempoMedioResolucion;
+                $convocatoria->SelloPyme = $ayudabase->SelloPyme;
+                $convocatoria->EmpresaCrisis = $ayudabase->EmpresaCrisis;
+                $convocatoria->InformeMotivado = $ayudabase->InformeMotivado;
+                $convocatoria->TextoCondiciones = $ayudabase->TextoCondiciones;
+                $convocatoria->TextoConsorcio = $ayudabase->TextoConsorcio;
+                $convocatoria->FondoTramo = $ayudabase->FondoTramo;
+                $convocatoria->updated_at = null;
+                $convocatoria->LastEditor = Auth::user()->email;
+                $convocatoria->Publicada = 0;
+                $convocatoria->AplicacionIntereses = $ayudabase->AplicacionIntereses;
+                $convocatoria->PorcentajeIntereses = $ayudabase->PorcentajeIntereses;
+                $convocatoria->MesesCarencia = $ayudabase->MesesCarencia;
+                $convocatoria->AnosAmortizacion = $ayudabase->AnosAmortizacion;
+                $convocatoria->IdConvocatoriaStr = $idAcronimo;
+                $convocatoria->id_ayuda = $ayudabase->id_ayuda;
+                $convocatoria->esMetricable = $ayudabase->esMetricable;
+                $convocatoria->save();
+
+            }catch(Exception $e){
+                Log::error($e->getMessage());
+                return redirect()->back()->withErrors('No se ha podido duplicar la convocatoria');
+            }
+            
+            $encajes = \App\Models\Encaje::where('Ayuda_id', $ayudabase->id)->get();
+
+            foreach($encajes as $encaje){
+
+                try{
+                    $encaje = new \App\Models\Encaje();                    
+                    $encaje->Acronimo = $encaje->Acronimo;
+                    $encaje->Titulo = html_entity_decode($encaje->Titulo);
+                    $encaje->Tipo = $encaje->Tipo;
+                    $encaje->Descripcion = html_entity_decode($encaje->Descripcion);
+                    $encaje->PalabrasClaveES = $encaje->PalabrasClaveES;
+                    $encaje->PalabrasClaveEN = $encaje->PalabrasClaveEN;
+                    $encaje->PerfilFinanciacion = $encaje->PerfilFinanciacion;
+                    $encaje->Ayuda_id = $convocatoria->id;
+                    $encaje->naturalezaPartner = $encaje->naturalezaPartner;
+                    $encaje->TagsTec = $encaje->TagsTec;
+                    $encaje->save();
+                }catch(Exception $e){
+                    die($e->getMessage());
+                    Log::error($e->getMessage());
+                    return redirect()->back()->withErrors('No se han podido duplicar los encajes de esta convocatoria');
+                }
+            }
+
+            return redirect()->route('admineditarconvocatoria', $convocatoria->id)->withSuccess('Se ha creado una nueva convocatoria a partir de otra correctamente');//$id);
+        }
+
+        return redirect()->back()->withErrors('No se ha encontrado la convocatoria base para duplicar');
+    }
+
+    public function editEncaje(Request $request){
+
+        if($request->get('id') === null || $request->get('ayuda_id') === null){
+            return redirect()->back()->withErrors("Error al actualizar el encaje");
+        }
+
+        $palabrases = null;
+        if(!empty($request->get('palabrases'))){
+            $palabrases = strip_tags($request->get('palabrases'));
+        }
+        $palabrasen = null;
+        if(!empty($request->get('palabrases'))){
+            $palabrasen = strip_tags($request->get('palabrasen'));
+        }
+
+        $titulo = null;
+        if(!empty($request->get('titulo'))){
+            $titulo = $request->get('titulo');
+        }
+        $acronimo = null;
+        if(!empty($request->get('acronimo'))){
+            $acronimo = $request->get('acronimo');
+        }
+        $intereses = json_encode($request->get('encajeintereses'));
+        $desc = $request->get('descripcion');
+
+        $opcioncnae = null;
+        $cnaes = null;
+
+        $opcioncnae = ($request->get('opcionCNAEEncaje') === null && $request->get('opcionCNAEEncaje') != "") ? null : $request->get('opcionCNAEEncaje') ;
+        if($request->get('opcionCNAEEncaje') == "Todos"){
+            $cnaes = null;
+        }else{
+            $cnaes = ($request->get('cnaesencaje') === null && $request->get('cnaesencaje') != "") ? null : json_encode($request->get('cnaesencaje'));
+        }
+
+        $fechamax = ($request->get('encajefechamax') === null && $request->get('encajefechamax') != "") ? null : $request->get('encajefechamax');
+
+        if($fechamax !== null && $fechamax != ""){
+            $fechamax = Carbon::createFromFormat('d/m/Y', $fechamax)->format('Y-m-d');
+        }else{
+            $fechamax = null; 
+        }
+
+        try{
+            $encaje = \App\Models\Encaje::where('id', $request->get('id'))->first();    
+            if(!$encaje){
+                return redirect()->back()->withErrors("Error al actualizar el encaje");
+            }
+           
+            $encaje->Acronimo = $acronimo;
+            $encaje->Titulo = html_entity_decode($titulo);
+            $encaje->Tipo = $request->get('tipo');
+            $encaje->Descripcion = $desc;
+            $encaje->PalabrasClaveES = $palabrases;
+            $encaje->PalabrasClaveEN = $palabrasen;
+            $encaje->PerfilFinanciacion = $intereses;
+            $encaje->Encaje_cnaes = $cnaes;
+            $encaje->Encaje_opcioncnaes = $opcioncnae;
+            $encaje->Encaje_fechamax = $fechamax;
+            $encaje->naturalezaPartner = json_encode($request->get('naturaleza'));
+            $encaje->TagsTec = ($request->get('tags') !== null && $request->get('tags') != "") ? json_encode($request->get('tags')) : null;
+            $encaje->save();
+        }catch(Exception $e){
+            Log::error($e->getMessage());
+            return redirect()->back()->withErrors("Error al actualizar el encaje");
+        }
+
+        /*
+            "id" => "231435000089743106"
+            "ayuda_id" => "231435000089743102"
+        */
+
+        try{
+            Artisan::call('elastic:ayudas', [
+                'id' => $encaje->id
+            ]);
+        }catch(Exception $e){
+            Log::error($e->getMessage());
+            return redirect()->back()->withErrors("Error al enviar el encaje a elastic");
+        }
+
+        return redirect()->back()->withSuccess("Encaje ". $encaje->Acronimo." actualizado");
+    }
+
+    public function crearEncaje($id){
+
+        $ayuda = \App\Models\Ayudas::find($id);
+        if(!$ayuda){
+            return abort(419);
+        }
+
+        $intereses = \App\Models\Intereses::where('defecto', 'true')->get();        
+        $ccaas = \App\Models\Ccaa::orderBy('Nombre')->get();
+        $cnaes = \App\Models\Cnaes::all();        
+        $trls = \App\Models\Trl::all();
+        $naturalezas = \App\Models\Naturalezas::where('Activo', 1)->get();
+
+        return view('admin.convocatorias.encajes.crear',[
+            'ayuda' => $ayuda,
+            'intereses' => $intereses,
+            'ccaas' => $ccaas,
+            'cnaes' => $cnaes,
+            'naturalezas' => $naturalezas
+        ]);
+    }
+
+    public function saveEncaje(Request $request){
+
+        if($request->get('ayuda_id') === null){
+            return abort(419);
+        }
+
+        $convocatoria = \App\Models\Ayudas::find($request->get('ayuda_id'));
+        if(!$convocatoria){
+            return abort(419);
+        }
+
+        $palabrases = null;
+        if(!empty($request->get('palabrases'))){
+            $palabrases = strip_tags($request->get('palabrases'));
+        }
+        $palabrasen = null;
+        if(!empty($request->get('palabrases'))){
+            $palabrasen = strip_tags($request->get('palabrasen'));
+        }
+ 
+        $titulo = null;
+        if(!empty($request->get('titulo'))){
+            $titulo = $request->get('titulo');
+        }
+        $acronimo = null;
+        if(!empty($request->get('acronimo'))){
+            $acronimo = $request->get('acronimo');
+        }
+        $intereses = json_encode($request->get('encajeintereses'));
+        $desc = $request->get('descripcion');
+
+        $opcioncnae = null;
+        $cnaes = null;
+
+        if($request->get('tipo') == "Interna" || $request->get('tipo') == "Target"){
+
+            $opcioncnae = ($request->get('opcionCNAEEncaje') === null || $request->get('opcionCNAEEncaje') === "") ? null : $request->get('opcionCNAEEncaje') ;
+            if($request->get('opcionCNAEEncaje') == "Todos"){
+                $cnaes = null;
+            }else{
+                $cnaes = ($request->get('cnaesencaje') === null || $request->get('cnaesencaje') === "") ? null : json_encode($request->get('cnaesencaje'));
+            }
+        }
+
+        try{            
+            $encaje = new \App\Models\Encaje();
+            $encaje->Acronimo = $acronimo;
+            $encaje->Titulo = html_entity_decode($titulo);
+            $encaje->Tipo = $request->get('tipo');
+            $encaje->Descripcion = html_entity_decode($desc);
+            $encaje->PalabrasClaveES = html_entity_decode($palabrases);
+            $encaje->PalabrasClaveEN = html_entity_decode($palabrasen);
+            $encaje->PerfilFinanciacion = html_entity_decode($intereses);
+            $encaje->TagsTec = (!empty($request->get('tags'))) ? json_encode($request->get('tags')) : null;
+            $encaje->Encaje_cnaes = $cnaes;
+            $encaje->Encaje_opcioncnaes = $opcioncnae;
+            $encaje->naturalezaPartner = json_encode($request->get('naturaleza'));
+            $encaje->Ayuda_id = $convocatoria->id;
+            $encaje->save();
+
+            try{
+                Artisan::call('elastic:ayudas', [
+                    'id' => $encaje->id
+                ]);
+            }catch(Exception $e){
+                Log::error($e->getMessage());
+                return redirect()->back()->withErrors('No se ha podido crear el encaje para esta convocatoria');
+            }
+
+        }catch(Exception $e){
+            die($e->getMessage());
+        }
+
+        return redirect()->route('admineditarconvocatoria', $convocatoria->id)->withSuccess('Se ha creado un nuevo encaje para esta convocatoria');
     }
 }
