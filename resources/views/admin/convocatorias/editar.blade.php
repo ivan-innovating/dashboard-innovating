@@ -773,7 +773,12 @@
         </div>
         <div class="card-body">
             <div class="text-right">
-                <button class="btn btn-danger btn-sm quitarencaje" data-item="{{$encaje->id}}"><i class="fas fa-times fa-xs"></i> {{__('Borrar encaje')}}</button>
+                <form method="post" action="{{route('admindeleteencaje')}}" class="deleteencaje">
+                    @csrf
+                    <input type="hidden" name="id" value="{{$encaje->id}}"/>
+                    <input type="hidden" name="ayuda_id" value="{{$encaje->Ayuda_id}}"/> 
+                    <button class="btn btn-danger" type="submit"><i class="fas fa-trash"></i> {{__('Borrar encaje')}}</button>
+                </form>
             </div>
             <form method="post" action="{{route('admineditencaje')}}" class="editencajes">
                 @csrf

@@ -917,13 +917,43 @@ class DashboardConvocatoriasController extends Controller
                 ]);
             }catch(Exception $e){
                 Log::error($e->getMessage());
-                return redirect()->back()->withErrors('No se ha podido crear el encaje para esta convocatoria');
+                return redirect()->back()->withErrors('No se ha podido crear el encaje para esta convocatoria en elastic');
             }
 
         }catch(Exception $e){
-            die($e->getMessage());
+            return redirect()->back()->withErrors('No se ha podido crear el encaje para esta convocatoria');
         }
 
         return redirect()->route('admineditarconvocatoria', $convocatoria->id)->withSuccess('Se ha creado un nuevo encaje para esta convocatoria');
+    }
+
+    public function deleteEncaje(Request $request){
+
+        if($request->get('id') === null || $request->get('ayuda_id') === null || !isSuperAdmin()){
+            return abort(419);
+        }
+        
+        $encaje = \App\Models\Encaje::where('id', $request->get('id'))->where('Ayuda_id', $request->get('ayuda_id'))->first();
+        if(!$encaje){
+            return redirect()->back()->withErrors('No se ha podido borrar el encaje de esta convocatoria');
+        }
+
+        try{
+            Artisan::call('elastic:deleteayuda', [
+                'id' => $encaje->id
+            ]);
+        }catch(Exception $e){
+            Log::error($e->getMessage());
+        }
+
+        try{
+            \App\Models\Encaje::where('id', $request->get('id'))->where('Ayuda_id', $request->get('ayuda_id'))->delete();
+        }catch(Exception $e){
+            Log::error($e->getMessage());
+            return redirect()->back()->withErrors('No se ha podido borrar el encaje de esta convocatoria');
+        }
+
+
+        return redirect()->back()->withSuccess('Se ha borrado el encaje de esta convocatoria');
     }
 }

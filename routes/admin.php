@@ -50,4 +50,5 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::post('/admin/editencaje', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'editEncaje'])->name('admineditencaje');
     Route::get('/admin/crearencaje/id/{id}', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'crearEncaje'])->name('admincrearencaje');
     Route::post('/admin/saveencaje', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'saveEncaje'])->name('adminsaveencaje');
+    Route::post('/admin/deleteencaje', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'deleteEncaje'])->name('admindeleteencaje');
 });
