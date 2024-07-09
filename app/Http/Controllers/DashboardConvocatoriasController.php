@@ -498,9 +498,9 @@ class DashboardConvocatoriasController extends Controller
             $ayuda->LastEditor = Auth::user()->email;
             $ayuda->updated_at = Carbon::now();
             $ayuda->AplicacionIntereses = $request->get('aplicacionintereses');
-            $ayuda->PorcentajeIntereses = $request->get('porcentajeintereses');
-            $ayuda->AnosAmortizacion = $request->get('anosamortizacion');
-            $ayuda->MesesCarencia = $request->get('mesescarencia');
+            $ayuda->PorcentajeIntereses = ($request->get('porcentajeintereses') != "" && $request->get('porcentajeintereses') !== null) ? $request->get('porcentajeintereses') : null;
+            $ayuda->AnosAmortizacion = ($request->get('anosamortizacion') != "" && $request->get('anosamortizacion') !== null) ? $request->get('anosamortizacion') : null;
+            $ayuda->MesesCarencia = ($request->get('mesescarencia') != "" && $request->get('mesescarencia') !== null) ? $request->get('mesescarencia') : null;
             $ayuda->Minimis = ($request->get('minimis') && $request->get('minimis') != "") ? 1 : 0;
             $ayuda->TematicaObligatoria = ($request->get('tematicaobligatoria') && $request->get('tematicaobligatoria') != "") ? 1 : 0;
             $ayuda->EfectoIncentivador = ($request->get('efectoincentivador') && $request->get('efectoincentivador') != "") ? 1 : 0;
