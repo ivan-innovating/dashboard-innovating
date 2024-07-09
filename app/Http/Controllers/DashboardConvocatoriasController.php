@@ -78,7 +78,6 @@ class DashboardConvocatoriasController extends Controller
 
     }
 
-
     public function editarConvocatoria($id){
 
         if($id === null){
@@ -87,7 +86,7 @@ class DashboardConvocatoriasController extends Controller
 
         $convocatoria = \App\Models\Ayudas::where('id', $id)->first();
 
-        if(!$convocatoria){
+        if(!$convocatoria || !Auth::check()){
             return abort(419);
         }
 
@@ -178,7 +177,7 @@ class DashboardConvocatoriasController extends Controller
         $id = $request->get('id');
         $ayuda = \App\Models\Ayudas::where('id', $id)->first();
 
-        if(!$ayuda){
+        if(!$ayuda || !Auth::check()){
             return redirect()->back()->withErrors('No se ha encontrado la convocatoria que estas intentando actualizar');
         }
 
