@@ -15,6 +15,7 @@ use App\Http\Middleware\CheckUserRole;
 |
 */
 
+
 Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() {
     #CUSTOM AUTH ROUTES
     Route::post('/actualizargraficosfondo', [\App\Http\Controllers\FondosController::class, 'actualizarGraficos'])->name('actualizargraficosfondo');

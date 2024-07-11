@@ -24,3 +24,7 @@ Route::middleware(['auth', 'isBanUser'])->group(function () {
                 ->name('logout');
 
 });
+
+Route::get('/', function(){
+    return redirect()->route('login');
+})->name('index');

@@ -391,22 +391,22 @@ return [
             'submenu' => [
                 [
                     'text' => 'Fondos',
-                    'url' => 'admin/settings',
+                    'url' => 'admin/fondos',
                     'icon' => 'fas fa-fw fa-sack-dollar',
                 ],
                 [
                     'text' => 'Subfondos',
-                    'url' => 'admin/settings',
+                    'url' => 'admin/subfondos',
                     'icon' => 'fas fa-fw fa-money-bill-transfer',
                 ],
                 [
                     'text' => 'Type of Actions',
-                    'url' => 'admin/settings',
+                    'url' => 'admin/typeofactions',
                     'icon' => 'fas fa-fw fa-location-crosshairs',
                 ],
                 [
                     'text' => 'Budget Year Map',
-                    'url' => 'admin/settings',
+                    'url' => 'admin/budgetyearmap',
                     'icon' => 'fas fa-fw fa-calendar',
                 ],                
             ]

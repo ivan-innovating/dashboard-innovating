@@ -51,4 +51,17 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::get('/admin/crearencaje/id/{id}', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'crearEncaje'])->name('admincrearencaje');
     Route::post('/admin/saveencaje', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'saveEncaje'])->name('adminsaveencaje');
     Route::post('/admin/deleteencaje', [\App\Http\Controllers\DashboardConvocatoriasController::class, 'deleteEncaje'])->name('admindeleteencaje');
+    ### RUTAS PARA GESTION DE FONDOS, SUBFONDOS 
+    Route::get('/admin/fondos', [\App\Http\Controllers\DashboardFondosController::class, 'fondos'])->name('adminfondos');
+    Route::get('/admin/crearfondo', [\App\Http\Controllers\DashboardFondosController::class, 'crearFondo'])->name('admincrearfondo');
+    Route::post('/admin/savefondo', [\App\Http\Controllers\DashboardFondosController::class, 'saveFondo'])->name('adminsavefondo');
+    Route::get('/admin/editarfondo/id/{id}', [\App\Http\Controllers\DashboardFondosController::class, 'editarFondo'])->name('admineditarfondo');
+    Route::post('/admin/editfondo', [\App\Http\Controllers\DashboardFondosController::class, 'editFondo'])->name('admineditfondo');
+    Route::post('/actualizargraficosfondo', [\App\Http\Controllers\DashboardFondosController::class, 'actualizarGraficos'])->name('actualizargraficosfondo');
+    Route::get('/admin/subfondos', [\App\Http\Controllers\DashboardFondosController::class, 'subfondos'])->name('adminsubfondos');
+    Route::get('/admin/crearsubfondo', [\App\Http\Controllers\DashboardFondosController::class, 'crearSubfondo'])->name('admincrearsubfondo');
+    Route::get('/admin/typeofactions', [\App\Http\Controllers\DashboardFondosController::class, 'typeofactions'])->name('admintypeofactions');
+    Route::get('/admin/creartypeofaction', [\App\Http\Controllers\DashboardFondosController::class, 'crearTypeofaction'])->name('admincreartypeofaction');
+    Route::get('/admin/budgetyearmap', [\App\Http\Controllers\DashboardFondosController::class, 'budgetyearmap'])->name('adminbudgetyearmap');
+    Route::get('/admin/crearbudgetyearmap', [\App\Http\Controllers\DashboardFondosController::class, 'crearBudgetyearmap'])->name('adminbudgetyearmap');
 });

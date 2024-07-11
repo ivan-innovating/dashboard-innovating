@@ -21,18 +21,10 @@
             crossorigin="anonymous" referrerpolicy="no-referrer" />
         <link rel="stylesheet" type="text/css" href="{{asset('vendor/cookie-consent/css/cookie-consent.css')}}">
         <link href="{{asset('dist/style.css')}}" rel="stylesheet" />
-        <link href="{{asset('dist/custom.css')}}" rel="stylesheet" />
-        @if(empty(metaTitleDynamic()))
-        <title>{{metaTitle()}}</title>
-        @else
-        <title>{{metaTitleDynamic()}}</title>
-        @endif
-        @meta('description')
-        @meta('keywords')
-        @meta('title')
-        @meta('og_data')
+        <link href="{{asset('dist/custom.css')}}" rel="stylesheet" />    
         <meta property='og:image' content="{{asset('img/logo-sm.jpg')}}" />            
         <link rel="canonical" href="{{url()->current()}}"/>        
+        <title>innovating.works - Admin</title>
         <!-- Google tag (gtag.js) -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVKYN80SLE"></script>
         <script>
