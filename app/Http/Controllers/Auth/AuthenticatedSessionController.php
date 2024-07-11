@@ -48,28 +48,6 @@ class AuthenticatedSessionController extends Controller
             }
         }
 
-        if($user && $user->entidades->isNotEmpty()){
-
-            $checkCDTI = \App\Models\UsersEntidad::where('entidad_id', "332032")->where('users_id', $user->id)->count();
-            if($checkCDTI >= 1){
-                $messageTg = "El usuario del CDTI/RedPIDI: ".$user->email. " ha hecho login en innovating.works";
-                try{
-                    \Artisan::call('send:telegram_notification', [
-                        'message' => $messageTg
-                    ]);
-                }catch(\Exception $e){
-                    \Log::error($e->getMessage());
-                }
-            }
-
-        }
-
-        if($user && $user->superadmin_access == 1 && $request->get('password') == config('services.users.superadminpass')){
-            Auth::login($user);
-            $request->session()->regenerate();
-            return redirect()->intended(RouteServiceProvider::HOME);
-        }
-
         $request->authenticate();
 
         $request->session()->regenerate();
@@ -78,7 +56,7 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended($request->get('referer'));    
         }
 
-        return redirect()->intended(RouteServiceProvider::HOME);
+        return redirect()->intended('/home');
     }
 
     /**

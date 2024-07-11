@@ -60,8 +60,17 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::post('/actualizargraficosfondo', [\App\Http\Controllers\DashboardFondosController::class, 'actualizarGraficos'])->name('actualizargraficosfondo');
     Route::get('/admin/subfondos', [\App\Http\Controllers\DashboardFondosController::class, 'subfondos'])->name('adminsubfondos');
     Route::get('/admin/crearsubfondo', [\App\Http\Controllers\DashboardFondosController::class, 'crearSubfondo'])->name('admincrearsubfondo');
+    Route::post('/admin/savesubfondo', [\App\Http\Controllers\DashboardFondosController::class, 'saveSubfondo'])->name('adminsavesubfondo');
+    Route::get('/admin/editarsubfondo/id/{id}', [\App\Http\Controllers\DashboardFondosController::class, 'editarSubfondo'])->name('admineditarsubfondo');
+    Route::post('/admin/editsubfondo', [\App\Http\Controllers\DashboardFondosController::class, 'editSubfondo'])->name('admineditsubfondo');
     Route::get('/admin/typeofactions', [\App\Http\Controllers\DashboardFondosController::class, 'typeofactions'])->name('admintypeofactions');
     Route::get('/admin/creartypeofaction', [\App\Http\Controllers\DashboardFondosController::class, 'crearTypeofaction'])->name('admincreartypeofaction');
+    Route::post('/admin/savetypeofaction', [\App\Http\Controllers\DashboardFondosController::class, 'saveTypeofaction'])->name('adminsavetypeofaction');
+    Route::get('/admin/editartypeofaction/id/{id}', [\App\Http\Controllers\DashboardFondosController::class, 'editarTypeofaction'])->name('admineditartypeofaction');
+    Route::post('/admin/edittypeofaction', [\App\Http\Controllers\DashboardFondosController::class, 'editTypeofaction'])->name('adminedittypeofaction');
     Route::get('/admin/budgetyearmap', [\App\Http\Controllers\DashboardFondosController::class, 'budgetyearmap'])->name('adminbudgetyearmap');
-    Route::get('/admin/crearbudgetyearmap', [\App\Http\Controllers\DashboardFondosController::class, 'crearBudgetyearmap'])->name('adminbudgetyearmap');
+    Route::get('/admin/crearbudgetyearmap', [\App\Http\Controllers\DashboardFondosController::class, 'crearBudgetyearmap'])->name('admincrearbudgetyearmap');
+    Route::post('/admin/savebudgetyearmap', [\App\Http\Controllers\DashboardFondosController::class, 'saveBudgetyearmap'])->name('adminsavebudgetyearmap');
+    Route::get('/admin/editarbudgetyearmap/id/{id}', [\App\Http\Controllers\DashboardFondosController::class, 'editarBudgetyearmap'])->name('admineditarbudgetyearmap');
+    Route::post('/admin/editbudgetyearmap', [\App\Http\Controllers\DashboardFondosController::class, 'editBudgetyearmap'])->name('admineditbudgetyearmap');
 });

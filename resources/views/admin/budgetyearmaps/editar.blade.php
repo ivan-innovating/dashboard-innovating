@@ -9,7 +9,7 @@
 @section('content')
 <div class="card">
 	<div class="card-header">
-		<h3 class="card-title">Crear Fondo</h3>
+		<h3 class="card-title">Editar Budget year map {{$budget->nombre}}</h3>
 		<div class="card-tools">
 			<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
 			<i class="fas fa-minus"></i>
@@ -32,18 +32,18 @@
                 @endforeach
             </div>
         @endif
-        {{ html()->form('POST', route('adminsavefondo'))->open()}}                    
+        {{ html()->form('POST', route('admineditbudgetyearmap'))->class('submitaction')->open() }}
+            <input type="hidden" name="id" value="{{$budget->id}}"/>
             <div class="form-group">
-                {{ html()->label('<span class="text-danger">*</span> Nombre', 'nombre') }}
-                {{ html()->text('nombre', null)->class('form-control')->required()->maxlength(100) }}
+                {{ html()->label('<span class="text-danger">*</span> Año', 'anio') }}
+                {{ html()->number('anio', $budget->anio, null)->class('form-control')->required() }}
             </div>
             <div class="form-group">
-                {{ html()->label('<span class="text-danger">*</span> Estado', 'estado') }}
-                {{ html()->checkbox('estado', false) }}
-                <br/><small class="text-muted">* marcar para hacer el fondo seleccionable en el admin de ayudas y visible en la página de ayuda pública.</small>
-            </div>        
-            <button type="submit" class="btn btn-primary">Crear fondo</button>                
-        {{ html()->form()->close()}}
+                {{ html()->label('<span class="text-danger">*</span> Presupuesto', 'presupuesto') }}
+                {{ html()->number('presupuesto', $budget->presupuesto, 0, null, 1000)->class('form-control')->required() }}
+            </div>                                                   
+            <button type="submit" class="btn btn-primary">Actualizar Budget Year Map</button>
+        {{ html()->form()->close() }}
 	</div>
 	<div class="card-footer">
 		
@@ -64,5 +64,13 @@
 @stop
 
 @section('js')
-	<script></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+	<script>
+        $(document).ready(function() {
+            $('.multiple-select').select2({
+                placeholder: "Selecciona...",
+            });
+        });
+    </script>
 @stop   

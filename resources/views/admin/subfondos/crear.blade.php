@@ -9,7 +9,7 @@
 @section('content')
 <div class="card">
 	<div class="card-header">
-		<h3 class="card-title">Crear Fondo</h3>
+		<h3 class="card-title">Crear Subfondo</h3>
 		<div class="card-tools">
 			<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
 			<i class="fas fa-minus"></i>
@@ -32,17 +32,24 @@
                 @endforeach
             </div>
         @endif
-        {{ html()->form('POST', route('adminsavefondo'))->open()}}                    
+        {{ html()->form('POST', route('adminsavesubfondo'))->open()}} 
             <div class="form-group">
                 {{ html()->label('<span class="text-danger">*</span> Nombre', 'nombre') }}
                 {{ html()->text('nombre', null)->class('form-control')->required()->maxlength(100) }}
             </div>
             <div class="form-group">
-                {{ html()->label('<span class="text-danger">*</span> Estado', 'estado') }}
-                {{ html()->checkbox('estado', false) }}
-                <br/><small class="text-muted">* marcar para hacer el fondo seleccionable en el admin de ayudas y visible en la página de ayuda pública.</small>
+                {{ html()->label('<span class="text-danger">*</span> Acronimo', 'acronimo') }}
+                {{ html()->text('acronimo', null)->class('form-control')->required()->maxlength(100) }}
+            </div>
+            <div class="form-group">
+                {{ html()->label('<span class="text-danger">*</span> Nivel', 'nivel') }}
+                {{ html()->select('nivel', ['1' => '1', '2' => '2'], null)->class('form-control')->placeholder('Selecciona uno...')->required() }}
+            </div>
+            <div class="form-group d-none" id="nivel_superior">
+                {{ html()->label('<span class="text-danger">*</span> Padre del nivel 2', 'id_nivel_superior') }}
+                {{ html()->select('id_nivel_superior',  $subfondos->pluck('nombre','external_id')->toArray(), null)->class('form-control')->placeholder('Selecciona uno...') }}
             </div>        
-            <button type="submit" class="btn btn-primary">Crear fondo</button>                
+        <button type="submit" class="btn btn-primary">Crear Subfondo</button>                
         {{ html()->form()->close()}}
 	</div>
 	<div class="card-footer">
@@ -64,5 +71,16 @@
 @stop
 
 @section('js')
-	<script></script>
+	<script>
+        $("select[name='nivel']").on("change", 
+            function(e, clickedIndex, newValue, oldValue) {
+            if(this.value == 2){
+                $("#nivel_superior").removeClass('d-none');
+                $('#id_nivel_superior').attr('required', true);
+            }else{
+                $("#nivel_superior").addClass('d-none');
+                $('#id_nivel_superior').attr('required', false);
+            }
+        });
+    </script>
 @stop   
