@@ -32,7 +32,8 @@
                 @endforeach
             </div>
         @endif
-        <form action="{{route('adminsaveorgano')}}" class="saveorganodpto" id="saveorganodpto" method="post">
+        <form action="{{route('admineeditorgano')}}" method="post">
+            @csrf
             <input type="hidden" name="id" value="{{$organismo->id}}">
             <input type="hidden" name="idempresa" value="{{$organismo->empresa->id}}">      
             <div class="form-group mb-3" id="ministerio">
@@ -70,7 +71,7 @@
             </div>
             <div class="form-group">
                 <label for="descripcion">Descripcion</label>
-                <textarea cols="20" rows="4" class="form-control" name="descripcion" value="{{$organismo->Descripcion}}"></textarea>
+                <textarea cols="20" rows="4" class="form-control" name="descripcion" value="{{$organismo->Descripcion}}">{{$organismo->Descripcion}}</textarea>
             </div>
             <div class="form-check mb-3" id="import">
                 <input class="form-check-input" type="checkbox" id="importante" name="importante" @if($organismo->scrapper == 1) checked @endif>

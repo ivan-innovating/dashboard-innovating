@@ -76,8 +76,11 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
 
     ### RUTAS PARA GESTION DE ORGANOS, DEPARTAMENTOS 
     Route::get('/admin/organos', [\App\Http\Controllers\DashboardOrganosController::class, 'organos'])->name('adminorganos');
-    Route::get('/admin/editarorgano/id/{id}', [\App\Http\Controllers\DashboardOrganosController::class, 'editarOrgano'])->name('admineeditarorgano');
+    Route::get('/admin/crearorgano', [\App\Http\Controllers\DashboardOrganosController::class, 'crearOrgano'])->name('admincrearorgano');
     Route::post('/admin/saveorgano', [\App\Http\Controllers\DashboardOrganosController::class, 'saveOrgano'])->name('adminsaveorgano');
+    Route::get('/admin/editarorgano/id/{id}', [\App\Http\Controllers\DashboardOrganosController::class, 'editarOrgano'])->name('admineeditarorgano');
+    Route::post('/admin/editorgano', [\App\Http\Controllers\DashboardOrganosController::class, 'editOrgano'])->name('admineeditorgano');
+
     Route::get('/admin/departamentos', [\App\Http\Controllers\DashboardOrganosController::class, 'departamentos'])->name('admindepartamentos');
     Route::get('/admin/ministerios', [\App\Http\Controllers\DashboardOrganosController::class, 'ministerios'])->name('adminministerios');
     Route::get('/admin/ccaas', [\App\Http\Controllers\DashboardOrganosController::class, 'ccaas'])->name('adminccaas');
