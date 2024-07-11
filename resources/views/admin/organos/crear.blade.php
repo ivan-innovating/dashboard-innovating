@@ -32,17 +32,26 @@
                 @endforeach
             </div>
         @endif
-        {{ html()->form('POST', route('adminsavefondo'))->open()}}                    
+        {{ html()->form('POST', route('adminsaveorgano'))->open()}}                                              
+            <div class="alert alert-warning">Antes de crear un Organo/Departamento asegurate de que no lo has encontrado en la lista correspondiente(puedes editar en caso de necesitar el Organo/Departamento), la creación y asignación errónea de un Organo/Departamento puede traer perdida de datos e información de la plataforma</div>
             <div class="form-group">
-                {{ html()->label('<span class="text-danger">*</span> Nombre', 'nombre') }}
-                {{ html()->text('nombre', null)->class('form-control')->required()->maxlength(100) }}
+                <label for="descripcion">Acronimo</label>
+                <input type="text" class="form-control" name="acronimo" required>
             </div>
             <div class="form-group">
-                {{ html()->label('<span class="text-danger">*</span> Estado', 'estado') }}
-                {{ html()->checkbox('estado', false) }}
-                <br/><small class="text-muted">* marcar para hacer el fondo seleccionable en el admin de ayudas y visible en la página de ayuda pública.</small>
-            </div>        
-            <button type="submit" class="btn btn-primary">Crear fondo</button>                
+                <label for="descripcion">Nombre</label>
+                <input type="text" class="form-control" name="nombre" required>
+            </div>              
+            <div class="form-group mb-3" id="ministerio">
+                <label for="ministerio">Ministerio</label>
+                <br/>
+                <select name="ministerio" class="multiple-select form-control" title="Selecciona uno..." required>
+                    @foreach($ministerios as $ministerio)
+                        <option value="{{$ministerio->id}}">{{$ministerio->Nombre}}</option>
+                    @endforeach
+                </select>
+            </div>            
+            <button type="submit" class="btn btn-primary">Crear Organo</button>
         {{ html()->form()->close()}}
 	</div>
 	<div class="card-footer">
@@ -64,5 +73,12 @@
 @stop
 
 @section('js')
-	<script></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>    
+	<script>
+        $(document).ready(function() {
+            $('.multiple-select').select2({
+            });
+        });
+    </script>
 @stop   

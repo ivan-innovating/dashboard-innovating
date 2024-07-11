@@ -34,7 +34,7 @@
         @endif
         <div class="text-right mb-3">                                      
             <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#organismoModal">Buscar Organo</button>                                                
-            <button class="btn btn-primary crearorgano btn-sm">Crear organo</button>
+            <a href="{{route('admincrearorgano')}}" class="btn btn-primary btn-sm">Crear organo</a>
         </div>
         <div class="table-responsive">        
             <table class="table table-hover text-nowrap f-14 w-100" id="table2">
@@ -168,5 +168,22 @@
 
             return false;
         });
+        const copyContent = async (identificador) => {
+            try {
+                await navigator.clipboard.writeText(identificador);
+                $.confirm({
+                    title: 'Copiado al portapapeles',
+                    content: 'Este popup se cerrara pasados 5 segundos',
+                    autoClose: 'cerrar|5000',
+                    buttons: {
+                        cerrar: function () {
+
+                        }
+                    }
+                });
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+            }
+        }
 </script>
 @stop   

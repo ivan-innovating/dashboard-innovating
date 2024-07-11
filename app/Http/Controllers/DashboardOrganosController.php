@@ -18,6 +18,15 @@ class DashboardOrganosController extends Controller
         ]);
     }
 
+    public function crearOrgano(){
+
+        $ministerios = \App\Models\Ministerios::get();
+
+        return view('admin.organos.crear', [
+            'ministerios' => $ministerios
+        ]);
+    }
+
     public function editarOrgano($id){
 
         if($id == "" || $id === null){
@@ -36,6 +45,26 @@ class DashboardOrganosController extends Controller
             'organismo' => $organismo,
             'ministerios' => $ministerios
         ]);
+    }
+
+    public function saveOrgano(Request $request){
+
+        $url = cleanUriBeforeSave(str_replace(" ","-", mb_strtolower($request->get('acronimo'))));
+        try{
+            $organo = new \App\Models\Organos();
+            $organo->Nombre = $request->get('nombre');
+            $organo->Acronimo = $request->get('acronimo');
+            $organo->id_ministerio = $request->get('ministerio');
+            $organo->url = $url;
+            $organo->es_interno = 1;
+            $organo->save();
+        }catch(Exception $e){
+            Log::error($e->getMessage());
+            return redirect()->back()->withErrors('No se ha podido guardar el organimos en la bbdd');
+        }
+
+        return redirect()->back()->withSuccess('Organismo creado correctamente');
+    
     }
 
     public function editOrgano(Request $request){
