@@ -417,22 +417,22 @@ return [
             'submenu' => [
                 [
                     'text' => 'Organos',
-                    'url' => 'admin/settings',
+                    'url' => 'admin/organos',
                     'icon' => 'fas fa-fw fa-building-columns',
                 ],
                 [
                     'text' => 'Departamentos',
-                    'url' => 'admin/settings',
+                    'url' => 'admin/departamentos',
                     'icon' => 'fas fa-fw fa-building-columns',
                 ],
                 [
                     'text' => 'Ministerios',
-                    'url' => 'admin/settings',
+                    'url' => 'admin/ministerios',
                     'icon' => 'fas fa-fw fa-sitemap',
                 ],
                 [
                     'text' => 'CCAA',
-                    'url' => 'admin/settings',
+                    'url' => 'admin/ccaas',
                     'icon' => 'fas fa-fw fa-flag',
                 ],
             ]

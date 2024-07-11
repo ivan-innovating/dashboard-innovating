@@ -60,14 +60,14 @@ class BuscarController extends Controller
         foreach($encontradas as $encontrada){
             if(isset($tipo) && $tipo == "investigador"){
                 if(isset($encontrada->movidoEntidad)){
-                    $html .= "<li><span class='text-info'>Primero tienes que mover la empresa a innovating:</span> <a href=".route('viewempresa',[$encontrada->id, $encontrada->CIF])." target='_blank'>".$encontrada->Nombre."(".$encontrada->CIF.")</a></li>";
+                    $html .= "<li><span class='text-info'>Primero tienes que mover la empresa a innovating:</span> <a href=".route('admineditarempresa',[$encontrada->CIF, $encontrada->id])." target='_blank'>".$encontrada->Nombre."(".$encontrada->CIF.")</a></li>";
                 }else{
                     $html .= "<li><button type='button' class='asociarinvestigador btn btn-outline-warning btn-sm' data-item=".$encontrada->id."> Asociar a: ".$encontrada->Nombre."(".$encontrada->CIF.")</button></li>";
                 }
             }elseif(isset($tipo) && $tipo == "asociar"){
                 $html .= "<li><button type='button' class='asociarempresa btn btn-outline-warning btn-sm' data-item=".$encontrada->CIF."> Asociar a proyecto: ".$encontrada->Nombre."(".$encontrada->CIF.")</button></li>";
             }else{
-                $html .= "<li><a href=".route('viewempresa',[$encontrada->id, $encontrada->CIF])." target='_blank'>".$encontrada->Nombre."(".$encontrada->CIF.")</a></li>";
+                $html .= "<li><a href=".route('admineditarempresa',[$encontrada->CIF, $encontrada->id])." target='_blank'>".$encontrada->Nombre."(".$encontrada->CIF.")</a></li>";
             }
         }
 
@@ -251,6 +251,7 @@ class BuscarController extends Controller
 
 
     public function buscarOrganismos(Request $request){
+
         $text = $request->get('text');
         
         $organos = \App\Models\Organos::where('Acronimo', 'LIKE', '%'.$text.'%')->orWhere('Nombre', 'LIKE', '%'.$text.'%')->get();
@@ -269,8 +270,12 @@ class BuscarController extends Controller
             $html = "<ul>";
         }
 
-        foreach($organismos as $org){                        
-            $html .= "<li><a type='button' class='setorganismo txt-azul' data-item='".$org->id."'>(".$org->Acronimo."): ".$org->Nombre."</a></li>";            
+        foreach($organismos as $org){ 
+            if($request->get('url') === null){                       
+                $html .= "<li><a type='button' class='setorganismo txt-azul' data-item='".$org->id."'>(".$org->Acronimo."): ".$org->Nombre."</a></li>";            
+            }else{
+                $html .= "<li><a href='".route('admineeditarorgano', $org->id)."' class='txt-azul'>(".$org->Acronimo."): ".$org->Nombre."</a></li>";            
+            }
         }
 
         $html .= "</ul>";

@@ -73,4 +73,13 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::post('/admin/savebudgetyearmap', [\App\Http\Controllers\DashboardFondosController::class, 'saveBudgetyearmap'])->name('adminsavebudgetyearmap');
     Route::get('/admin/editarbudgetyearmap/id/{id}', [\App\Http\Controllers\DashboardFondosController::class, 'editarBudgetyearmap'])->name('admineditarbudgetyearmap');
     Route::post('/admin/editbudgetyearmap', [\App\Http\Controllers\DashboardFondosController::class, 'editBudgetyearmap'])->name('admineditbudgetyearmap');
+
+    ### RUTAS PARA GESTION DE ORGANOS, DEPARTAMENTOS 
+    Route::get('/admin/organos', [\App\Http\Controllers\DashboardOrganosController::class, 'organos'])->name('adminorganos');
+    Route::get('/admin/editarorgano/id/{id}', [\App\Http\Controllers\DashboardOrganosController::class, 'editarOrgano'])->name('admineeditarorgano');
+    Route::post('/admin/saveorgano', [\App\Http\Controllers\DashboardOrganosController::class, 'saveOrgano'])->name('adminsaveorgano');
+    Route::get('/admin/departamentos', [\App\Http\Controllers\DashboardOrganosController::class, 'departamentos'])->name('admindepartamentos');
+    Route::get('/admin/ministerios', [\App\Http\Controllers\DashboardOrganosController::class, 'ministerios'])->name('adminministerios');
+    Route::get('/admin/ccaas', [\App\Http\Controllers\DashboardOrganosController::class, 'ccaas'])->name('adminccaas');
+
 });
