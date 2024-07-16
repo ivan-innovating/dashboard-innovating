@@ -459,9 +459,20 @@ return [
             ]
         ],  
         [
-            'text' => 'Concesiones',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-hand-holding-dollar',
+            'text' => 'Scrappers',
+            'icon' => 'fas fa-fw fa-spider',
+            'submenu' => [
+                [
+                    'text' => 'Scrappers',
+                    'url' => 'admin/scrappers',
+                    'icon' => 'fas fa-fw fa-spider',
+                ],
+                [
+                    'text' => 'Ver datos agrupados',
+                    'url' => 'admin/datosagrupados',
+                    'icon' => 'fas fa-fw fa-layer-group',
+                ],
+            ]
         ],  
         [
             'text' => 'Investigadores',

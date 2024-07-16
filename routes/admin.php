@@ -85,4 +85,16 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::get('/admin/ministerios', [\App\Http\Controllers\DashboardOrganosController::class, 'ministerios'])->name('adminministerios');
     Route::get('/admin/ccaas', [\App\Http\Controllers\DashboardOrganosController::class, 'ccaas'])->name('adminccaas');
 
+
+    ### RUTAS PARA DATOS SCRAPPERS
+    Route::get('/admin/scrappers', [\App\Http\Controllers\DashboardScrapperController::class, 'scrappers'])->name('adminscrappers');
+    Route::get('/admin/reglasscrappers/{id}', [\App\Http\Controllers\DashboardScrapperController::class, 'reglasScrappers'])->name('adminscrapperreglas');
+    Route::get('/admin/datosagrupados', [\App\Http\Controllers\DashboardScrapperController::class, 'datosAgrupados'])->name('adminsdatosagrupados');
+    Route::post('/admin/scrappers/getajaxvalues', [\App\Http\Controllers\DashboardScrapperController::class, 'ajaxGetValues'])->name('admingetajaxvalues');
+    Route::post('/admin/saveregla', [\App\Http\Controllers\DashboardScrapperController::class, 'saveRegla'])->name('adminsaveregla');
+    Route::get('/admin/editarregla/id/{id}', [\App\Http\Controllers\DashboardScrapperController::class, 'editarRegla'])->name('admineeditarregla');
+    Route::post('/admin/deleteregla', [\App\Http\Controllers\DashboardScrapperController::class, 'deleteRegla'])->name('admindeleteregla');
+    Route::post('/admin/editregla', [\App\Http\Controllers\DashboardScrapperController::class, 'editRegla'])->name('admineeditregla');
+    Route::post('/admin/aplicarreglas', [\App\Http\Controllers\DashboardScrapperController::class, 'aplicarReglas'])->name('adminaplicarreglas');
+    
 });
