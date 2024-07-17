@@ -85,7 +85,6 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::get('/admin/ministerios', [\App\Http\Controllers\DashboardOrganosController::class, 'ministerios'])->name('adminministerios');
     Route::get('/admin/ccaas', [\App\Http\Controllers\DashboardOrganosController::class, 'ccaas'])->name('adminccaas');
 
-
     ### RUTAS PARA DATOS SCRAPPERS
     Route::get('/admin/scrappers', [\App\Http\Controllers\DashboardScrapperController::class, 'scrappers'])->name('adminscrappers');
     Route::get('/admin/reglasscrappers/{id}', [\App\Http\Controllers\DashboardScrapperController::class, 'reglasScrappers'])->name('adminscrapperreglas');
@@ -96,5 +95,15 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::post('/admin/deleteregla', [\App\Http\Controllers\DashboardScrapperController::class, 'deleteRegla'])->name('admindeleteregla');
     Route::post('/admin/editregla', [\App\Http\Controllers\DashboardScrapperController::class, 'editRegla'])->name('admineeditregla');
     Route::post('/admin/aplicarreglas', [\App\Http\Controllers\DashboardScrapperController::class, 'aplicarReglas'])->name('adminaplicarreglas');
+    Route::get('/admin/programarscrapper', [\App\Http\Controllers\DashboardScrapperController::class, 'programarScrapper'])->name('adminprogramarscrapper');
+    Route::post('/admin/crearprogramscrapper', [\App\Http\Controllers\DashboardScrapperController::class, 'createProgramScrapper'])->name('admincreateprogramscrapper');   
+    Route::post('/admin/deleteprogramscrapper', [\App\Http\Controllers\DashboardScrapperController::class, 'deleteProgramScrapper'])->name('admindeleteprogramscrapper');   
     
+
+    ### RUTAS PARA GESTION DE USUARIOS
+    Route::get('/admin/usuarios', [\App\Http\Controllers\DashboardUsuariosController::class, 'users'])->name('adminsusuarios');
+    Route::get('/admin/usuariossinvalidar', [\App\Http\Controllers\DashboardUsuariosController::class, 'usersSinValidar'])->name('adminsusuariossinvalidar');
+    Route::get('/admin/usuariossinempresa', [\App\Http\Controllers\DashboardUsuariosController::class, 'usersSinEmpresa'])->name('adminsusuariossinempresa');
+    Route::get('/admin/usuariosconempresa', [\App\Http\Controllers\DashboardUsuariosController::class, 'usersConEmpresa'])->name('adminsusuariosconempresa');
+    Route::get('/admin/investigadores', [\App\Http\Controllers\DashboardUsuariosController::class, 'investigadores'])->name('admininvestigadores');
 });

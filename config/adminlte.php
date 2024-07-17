@@ -472,12 +472,43 @@ return [
                     'url' => 'admin/datosagrupados',
                     'icon' => 'fas fa-fw fa-layer-group',
                 ],
+                [
+                    'text' => 'Programar scrapper',
+                    'url' => 'admin/programarscrapper',
+                    'icon' => 'fas fa-fw fa-clock',
+                ],
             ]
         ],  
         [
-            'text' => 'Investigadores',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-user-graduate',
+            'text' => 'Usuarios',
+            'icon' => 'fas fa-fw fa-user',
+            'submenu' => [
+                [
+                    'text' => 'Usuarios',
+                    'url' => 'admin/usuarios',
+                    'icon' => 'fas fa-fw fa-user',
+                ],
+                [
+                    'text' => 'Usuarios sin validar',
+                    'url' => 'admin/usuariossinvalidar',
+                    'icon' => 'fas fa-fw fa-user-slash',
+                ],
+                [
+                    'text' => 'Usuarios sin empresa',
+                    'url' => 'admin/usuariossinempresa',
+                    'icon' => 'fas fa-fw fa-user-xmark',
+                ],
+                [
+                    'text' => 'Usuarios con empresa',
+                    'url' => 'admin/usuariosconempresa',
+                    'icon' => 'fas fa-fw fa-user-plus',
+                ],
+                [
+                    'text' => 'Investigadores',
+                    'url' => 'admin/investigadores',
+                    'icon' => 'fas fa-fw fa-user-graduate',
+                ]
+            ]
         ],
         [
             'text' => 'Patentes',
@@ -508,11 +539,6 @@ return [
             'text' => 'Enviar datos Beagle',
             'url' => 'admin/settings',
             'icon' => 'fas fa-fw fa-shield-dog',
-        ],
-        [
-            'text' => 'Usuarios',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-user',
         ],
         [
             'text' => 'Configuración',

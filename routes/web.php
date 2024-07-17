@@ -110,7 +110,7 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::post('/subirarchivoproyectosactualizados', [\App\Http\Controllers\DashboardProyectosController::class, 'subirArchivoProyectosActualizados'])->name('subirarchivoproyectosactualizados');
     Route::post('/deleteproyectosimportados', [\App\Http\Controllers\DashboardProyectosController::class, 'deleteProyectos'])->name('deleteproyectosimportados');
     Route::post('/deleteconcesionesimportadas', [\App\Http\Controllers\DashboardConcesionesController::class, 'deleteConcesiones'])->name('deleteconcesionesimportadas');
-    Route::post('/crear-programscrapper', [\App\Http\Controllers\DashboardConcesionesController::class, 'createProgramScrapper'])->name('createprogramscrapper');    
+     
     Route::post('/delete-programscrapper', [\App\Http\Controllers\DashboardConcesionesController::class, 'deleteProgramScrapper'])->name('deleteprogramscrapper');
     Route::post('/deletearchivos', [\App\Http\Controllers\DashboardProyectosController::class, 'deleteArchivos'])->name('deletearchivos');
     Route::post('/deletecondicion', [\App\Http\Controllers\CondicionesFinancierasController::class, 'deleteCondicion'])->name('deletecondicion');
@@ -177,8 +177,7 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::post('/borrarayudapregunta', [\App\Http\Controllers\DashboardAyudaController::class, 'deletePregunta'])->name('borrarayudapregunta');
     Route::post('/updateayudaanalisis', [\App\Http\Controllers\DashboardAyudaController::class, 'updateAyudaAnalisis'])->name('updateayudaanalisis');
     Route::post('/validateuser', [\App\Http\Controllers\UsersController::class, 'validateUser'])->name('validateuser');
-    Route::post('/deletecache', [\App\Http\Controllers\CacheController::class, 'delete'])->name('deletecache');
-    Route::post('/borracachelaravel', [\App\Http\Controllers\CacheController::class, 'deleteLaravelCache'])->name('borracachelaravel');
+
     Route::get('/editcnae/id/{id}', [\App\Http\Controllers\DashboardCnaeController::class, 'viewCnae'])->name('editcnae');
     Route::get('/editinvestigador/id/{id}', [\App\Http\Controllers\UsersController::class, 'viewInvestigador'])->name('editinvestigador');
     Route::post('/saveinvestigador', [\App\Http\Controllers\UsersController::class, 'saveInvestigador'])->name('saveinvestigador');

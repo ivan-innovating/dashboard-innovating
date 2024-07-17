@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class DashboardScrapperController extends Controller
@@ -255,6 +256,74 @@ class DashboardScrapperController extends Controller
 
         return redirect()->back()->withSuccess('Proceso de alpicado de reglas creado, vuelve en un par de horas para ver si esta correcto');
 
+    }
 
+    public function programarScrapper(){
+
+        $organosScrapper = \App\Models\Organos::where('scrapper', 1)->orderBy('Nombre', 'ASC')->pluck('Nombre', 'id')->toArray();
+        $departamentosScrapper = \App\Models\Departamentos::where('scrapper', 1)->orderBy('Nombre', 'ASC')->pluck('Nombre', 'id')->toArray();
+        $scrapperspendientes = \App\Models\ScrappersOrganismos::orderBy('created_at')->limit(100)->get();
+
+        return view('admin.scrappers.programar', [
+            'organos' => $organosScrapper,
+            'departamentos' => $departamentosScrapper,
+            'scrapperprogramados' => $scrapperspendientes
+        ]);
+    }
+
+    public function createProgramScrapper(Request $request){
+
+        if(\Carbon\Carbon::createFromFormat('d/m/Y', $request->get('desde')) >= \Carbon\Carbon::createFromFormat('d/m/Y', $request->get('hasta'))){
+            return redirect()->back()->withErrors('La fecha desde es mayor o igual a la fecha hasta');
+        }
+
+        if($request->get('organo') !== null){
+            $type = "organo";
+            $organo = \App\Models\Organos::find($request->get('organo'));
+            $idorganismo = $organo->id;
+            $superior = $organo->ministerios;
+        }else if($request->get('dpto') !== null){
+            $type = "departamento";
+            $dpto = \App\Models\Departamentos::find($request->get('dpto'));
+            $idorganismo = $dpto->id;
+            $superior = $dpto->ccaa;
+        }else{
+            return redirect()->back()->withErrors('No se ha podido crear la tarea programada');
+        }
+
+        $checkscrapper = \App\Models\ScrappersOrganismos::where('ejecutado', 0)->where('id_organismo', $idorganismo)->where('type', $type)->first();
+
+        if($checkscrapper){
+            return redirect()->back()->withErrors('Ya existe una tarea programada pendiente de ejecución para este organismo, si no es correcta puedes borrarla y crear una nueva.');
+        }
+
+        try{
+            $scrapper = new \App\Models\ScrappersOrganismos();
+            $scrapper->id_user = Auth::user()->id;
+            $scrapper->id_organismo = $idorganismo;
+            $scrapper->id_ministerio = ($type == "departamento") ? $superior->external_id : $superior->id;
+            $scrapper->type = $type;
+            $scrapper->desde = \Carbon\Carbon::createFromFormat('d/m/Y', $request->get('desde'))->format('Y-m-d');
+            $scrapper->hasta = \Carbon\Carbon::createFromFormat('d/m/Y', $request->get('hasta'))->format('Y-m-d');
+            $scrapper->save();
+        }catch(Exception $e){
+            Log::error($e->getMessage());
+            return redirect()->back()->withErrors('No se ha podido crear la tarea programada');
+        }
+
+        return redirect()->back()->withSuccess('Se ha creado la tarea programada correctamente');
+        
+    }
+
+    public function deleteProgramScrapper(Request $request){
+
+        try{
+            \App\Models\ScrappersOrganismos::find($request->get('id'))->delete();
+        }catch(Exception $e){
+            Log::error($e->getMessage());
+            return redirect()->back()->withErrors('No se ha podido borra la tarea programada');
+        }
+
+        return redirect()->back()->withSuccess('Se ha borrado la tarea programada correctamente');
     }
 }
