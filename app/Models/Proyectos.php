@@ -77,4 +77,7 @@ class Proyectos extends Model
         return $this->belongsTo(ChatGPTProyectosKeywords::class, 'id', 'id_proyecto');
     }
     
+    function projectRawData(){
+        return $this->belongsTo(ProjectsCordisRawData::class, 'id_raw_data', 'id');
+    }
 }

@@ -99,6 +99,13 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::post('/admin/crearprogramscrapper', [\App\Http\Controllers\DashboardScrapperController::class, 'createProgramScrapper'])->name('admincreateprogramscrapper');   
     Route::post('/admin/deleteprogramscrapper', [\App\Http\Controllers\DashboardScrapperController::class, 'deleteProgramScrapper'])->name('admindeleteprogramscrapper');   
     
+    ### RUTAS PARA GESTION DE PROYECTOS
+    Route::get('/admin/proyectosimportados', [\App\Http\Controllers\DashboardProyectosController::class, 'proyectosImportados'])->name('adminsproyectosimportados');
+    Route::get('/admin/proyectoscreados', [\App\Http\Controllers\DashboardProyectosController::class, 'proyectosCreados'])->name('adminproyectoscreados');
+    Route::get('/admin/asignardatosproyectos', [\App\Http\Controllers\DashboardProyectosController::class, 'asignarDatosProyectos'])->name('adminasignardatosproyectos');
+    Route::get('/admin/editarproyecto/id/{id}', [\App\Http\Controllers\DashboardProyectosController::class, 'editarProyecto'])->name('admineditarproyecto');
+    Route::post('/admin/editproyecto', [\App\Http\Controllers\DashboardScrapperController::class, 'editProyecto'])->name('admineditproyecto');
+    Route::get('/admin/viewdatoscordis', [\App\Http\Controllers\DashboardProyectosController::class, 'viewDatosCordis'])->name('adminviewdatoscordis');
 
     ### RUTAS PARA GESTION DE USUARIOS
     Route::get('/admin/usuarios', [\App\Http\Controllers\DashboardUsuariosController::class, 'users'])->name('adminsusuarios');

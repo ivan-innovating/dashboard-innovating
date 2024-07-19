@@ -21,6 +21,72 @@ class DashboardProyectosController extends Controller
 {
     //
 
+    public function proyectosImportados(){
+
+        $proyectos = \App\Models\Proyectos::where('importado', 1)->orderBy('updated_at')->paginate(100);
+
+        return view('admin.proyectos.proyectosimportados', [
+            'proyectos' => $proyectos            
+        ]);
+
+    }
+
+    public function editarProyecto($id){
+
+        $proyecto = \App\Models\Proyectos::find($id);
+        if(!$proyecto){
+            return abort(404);
+        }
+
+        $ayudasselect = \App\Models\Ayudas::whereNotNull('IdConvocatoriaStr')->where('IdConvocatoriaStr', '!=', '')->select('IdConvocatoriaStr', 'Acronimo', 'Titulo')->get();
+
+        return view('admin.proyectos.editar', [
+            'proyecto' => $proyecto,
+            'ayudas' => $ayudasselect
+        ]);
+    }
+
+    public function viewDatosCordis($id){
+
+        $rawdata = \App\Models\ProjectsCordisRawData::find($id);
+        if(!$rawdata){
+            return abort(404);
+        }
+
+        return view('admin.proyectos.viewrawdata', [
+            'rawdata' => $rawdata
+        ]);
+
+    }
+
+    public function editProyecto(Request $request){
+
+        if($request->get('id') === null || $request->get('id') == ""){
+            return abort(419);
+        }
+
+        $proyecto = \App\Models\Proyectos::find($request->get('id'));
+
+        if(!$proyecto){
+            return abort(419);
+        }
+
+        try{            
+            $proyecto->Acronimo = $request->get('acronimo');
+            $proyecto->Titulo = $request->get('titulo');
+            $proyecto->Descripcion = $request->get('descproyecto');
+            $proyecto->IdAyuda = $request->get('ayuda');
+            $proyecto->Estado = $request->get('estado');
+            $proyecto->save();
+        }catch(Exception $e){
+            Log::error($e->getMessage());
+            return redirect()->back()->withErrors('No se ha podido actualizar el proyecto en este momento');
+        }
+
+        return redirect()->back()->withSuccess('Proyecto actualizado correctamente');
+
+    }
+
     public function viewPeoyectoImportado($id){
 
         $proyecto = \App\Models\Proyectos::find($id);
@@ -69,7 +135,6 @@ class DashboardProyectosController extends Controller
 
     }
 
-
     public function deleteProyectos(Request $request){
 
         try{
@@ -102,7 +167,6 @@ class DashboardProyectosController extends Controller
         return redirect()->back()->withSuccess('Se han borrado y quitado de la importación los archivos seleccionados.')->with('option','ok');
 
     }
-
 
     public function subirArchivoProyectos(Request $request){
 

@@ -56,6 +56,16 @@ return [
             'throw' => false,
         ],
 
+        's3_files' => [
+            'driver' => 's3',
+            'key' => env('S3_FILES_AWS_ACCESS_KEY_ID'),
+            'secret' => env('S3_FILES_AWS_SECRET_ACCESS_KEY'),
+            'region' => env('S3_FILES_AWS_REGION', 'eu-west-1'),
+            'bucket' => env('S3_FILES_AWS_BUCKET', 'innovating-prod-assets'),
+            'url' => env('S3_FILES_AWS_URL'),
+            'endpoint' => env('S3_FILES_AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('S3_FILES_AWS_USE_PATH_STYLE_ENDPOINT', false),
+        ],
     ],
 
     /*

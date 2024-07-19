@@ -443,17 +443,17 @@ return [
             'submenu' => [
                 [
                     'text' => 'Proyectos importados',
-                    'url' => 'admin/settings',
+                    'url' => 'admin/proyectosimportados',
                     'icon' => 'fas fa-fw fa-file-arrow-up',
                 ],
                 [
                     'text' => 'Proyectos creados',
-                    'url' => 'admin/settings',
+                    'url' => 'admin/proyectoscreados',
                     'icon' => 'fas fa-fw fa-pen-ruler',
                 ],
                 [
                     'text' => 'Asignar datos de proyectos',
-                    'url' => 'admin/settings',
+                    'url' => 'admin/asignardatosproyectos',
                     'icon' => 'fas fa-fw fa-arrows-left-right-to-line',
                 ],
             ]
