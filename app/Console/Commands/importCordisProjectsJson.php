@@ -54,12 +54,6 @@ class importCordisProjectsJson extends Command
             $checkdate = Carbon::now()->subDays(2);
         }
         
-        try{
-            Storage::disk('s3_files')->exists('proyectos/import/organization.json');
-        }catch(Exception $e){
-            dd($e->getMessage());
-        }
-
         if(Storage::disk('s3_files')->exists('proyectos/import/organization.json')){
             
             $last_modified = Storage::disk('s3_files')->lastModified('proyectos/import/organization.json');
@@ -100,7 +94,7 @@ class importCordisProjectsJson extends Command
                         $organizationrawdata->postCode = $organization['postCode'];
                         $organizationrawdata->projectAcronym = $organization['projectAcronym'];
                         $organizationrawdata->rcn = $organization['rcn'];
-                        $organizationrawdata->shortName = $organization['shortName'];
+                        $organizationrawdata->shortName = substr($organization['shortName'], 0 , 100);
                         $organizationrawdata->street = $organization['street'];
                         $organizationrawdata->role = $organization['role'];
                         $organizationrawdata->totalCost = ($organization['totalCost'] != "") ? $organization['totalCost'] : 0;
@@ -131,10 +125,10 @@ class importCordisProjectsJson extends Command
 
         }
 
-        /*if(Storage::disk('s3_files')->exists('proyectos/import/project.json')){
+        if(Storage::disk('s3_files')->exists('proyectos/import/project.json')){
             
             $last_modified = Storage::disk('s3_files')->lastModified('proyectos/import/project.json');
-            $fecha = Carbon::createFromTimestamp($last_modified)->toDateTimeString(); 
+            $fecha = Carbon::createFromTimestamp($last_modified); 
 
             if($fecha > $checkdate){
 
@@ -151,7 +145,7 @@ class importCordisProjectsJson extends Command
                     try{
                        $projectrawdata->project_id = $project['id'];
                        $projectrawdata->id_organismo = self::ORGANISMO;
-                       $projectrawdata->acronym = $project['acronym'];
+                       $projectrawdata->acronym =  mb_convert_encoding(str_replace(["“","”"], "",$project['acronym']), "UTF-8");
                        $projectrawdata->contentUpdateDate = $project['contentUpdateDate'];
                        $projectrawdata->ecMaxContribution = $project['ecMaxContribution'];
                        $projectrawdata->ecSignatureDate = $project['ecSignatureDate'];
@@ -161,11 +155,11 @@ class importCordisProjectsJson extends Command
                        $projectrawdata->grantDoi = $project['grantDoi'];
                        $projectrawdata->legalBasis = $project['legalBasis'];
                        $projectrawdata->nature = $project['nature'];
-                       $projectrawdata->objective = $project['objective'];
+                       $projectrawdata->objective = mb_convert_encoding(str_replace(["“","”"], "", $project['objective']), "UTF-8");
                        $projectrawdata->rcn = $project['rcn'];
                        $projectrawdata->status = $project['status'];
                        $projectrawdata->subCall = $project['subCall'];
-                       $projectrawdata->title = $project['title'];
+                       $projectrawdata->title = substr(mb_convert_encoding(str_replace(["“","”"], "", $project['title']), "UTF-8"),0,190);
                        $projectrawdata->topics = $project['topics'];
                        $projectrawdata->totalCost = $project['totalCost'];
                        $projectrawdata->save();
@@ -344,7 +338,7 @@ class importCordisProjectsJson extends Command
                     return COMMAND::FAILURE;
                 }
             }
-        }*/
+        }
 
         $this->info(now());
 
