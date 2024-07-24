@@ -53,12 +53,21 @@ class DashboardScrapperController extends Controller
             $enableButton = true;
         }
 
+        $applyRulePending = false;
+        if($id !== null){
+            $applyRules = \App\Models\ApplyRules::where('id_organismo', $id)->where('applied', 0)->get();
+            if($applyRules->count() > 0){
+                $applyRulePending = true;
+            }
+        }
+
         return view('admin.scrappers.reglas',[
             'organismo' => $organismo,
             'columnas' => $columnas,
             'convocatorias' => $convocatorias,
             'reglas' => $reglas,
-            'enableButton' => $enableButton
+            'enableButton' => $enableButton,
+            'applyRulePending' => $applyRulePending
         ]); 
     }
 

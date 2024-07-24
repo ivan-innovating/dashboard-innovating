@@ -29,7 +29,7 @@ class applyRulesOnProjects extends Command
     public function handle()
     {
         //
-        $applyrules = \App\Models\ApplyRules::where('created_at', '>=', Carbon::now()->subHours(2))->where('applied', 0)->get();
+        $applyrules = \App\Models\ApplyRules::where('updated_at', '>=', Carbon::now()->subHours(24))->where('applied', 0)->get();
 
         foreach($applyrules as $apply){
             foreach(json_decode($apply->rules) as $ruleid){

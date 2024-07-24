@@ -43,9 +43,14 @@
         </div>
         @if($reglas->count() > 0 && $enableButton === true)
         <div class="text-left mb-3">            
-            <small class="text-danger">Tienes cambios en reglas sin aplicar</small><br/>            
-            <small class="text-danger">* Aplicar los cambios en las reglas a los proyectos, se ejecuta de manera asincrona</small><br/>
-            <button type="button" class="btm btn-danger btn-sm" data-toggle="modal" data-target="#AplicarReglasModal">Aplicar cambios reglas</button>            
+            @if($applyRulePending === false)
+            <small class="text-danger">Tienes cambios en reglas sin aplicar</small><br/>                        
+            @else
+            <small class="text-danger">Ya hay una aplicación pendiente en este organimos de las reglas creadas</small><br/>            
+            <small class="text-danger">Si has añadido/quitado o modificado alguna regla tienes que darle al boton "Aplicar cambios reglas"</small><br/>            
+            @endif
+            <button type="button" class="btm btn-danger btn-sm mt-2" data-toggle="modal" data-target="#AplicarReglasModal">Aplicar cambios reglas</button><br/>            
+            <small class="text-danger">* Aplicar los cambios en las reglas a los proyectos, se ejecuta de manera asincrona</small>
         </div>
         @endif
         @if($reglas->isEmpty())

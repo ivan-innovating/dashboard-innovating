@@ -93,4 +93,28 @@
     <!--Bootstrap Select-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+    <script> 
+        $('select[name="organo"]').on('changed.bs.select', function(e){
+            if(this.value !== undefined){
+                $('select[name="departamento"]').attr('required', false);
+                $('select[name="departamento"]').selectpicker('refresh');
+            }else{
+                $('select[name="organo"]').attr('required', true);
+                $('select[name="organo"]').selectpicker('refresh');
+                $('select[name="departamento"]').attr('required', true);
+                $('select[name="departamento"]').selectpicker('refresh');
+            }
+        })
+        $('select[name="departamento"]').on('changed.bs.select', function(e){
+            if(this.value !== undefined){
+                $('select[name="organo"]').attr('required', false);
+                $('select[name="organo"]').selectpicker('refresh');
+            }else{
+                $('select[name="organo"]').attr('required', true);
+                $('select[name="organo"]').selectpicker('refresh');
+                $('select[name="departamento"]').attr('required', true);
+                $('select[name="departamento"]').selectpicker('refresh');
+            }
+        })
+    </script>
 @stop   
