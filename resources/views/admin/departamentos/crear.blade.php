@@ -9,7 +9,7 @@
 @section('content')
 <div class="card">
 	<div class="card-header">
-		<h3 class="card-title">Crear Organo</h3>
+		<h3 class="card-title">Crear Departamento</h3>
 		<div class="card-tools">
 			<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
 			<i class="fas fa-minus"></i>
@@ -32,7 +32,7 @@
                 @endforeach
             </div>
         @endif
-        {{ html()->form('POST', route('adminsaveorgano'))->open()}}                                              
+        {{ html()->form('POST', route('adminsavedepartamento'))->open()}}                                              
             <div class="alert alert-warning">Antes de crear un Organo/Departamento asegurate de que no lo has encontrado en la lista correspondiente(puedes editar en caso de necesitar el Organo/Departamento), la creación y asignación errónea de un Organo/Departamento puede traer perdida de datos e información de la plataforma</div>
             <div class="form-group">
                 <label for="descripcion">Acronimo</label>
@@ -42,17 +42,8 @@
                 <label for="descripcion">Nombre</label>
                 <input type="text" class="form-control" name="nombre" required>
             </div>              
-            <div class="form-group mb-3" id="ministerio">
-                <label for="ministerio">Ministerio o CCAA del que depende</label>
-                <br/>
-                <select name="ministerio" class="multiple-select form-control" title="Selecciona uno..." required>
-                    @foreach($ministerios as $ministerio)
-                        <option value="{{$ministerio->id}}">{{$ministerio->Nombre}}</option>
-                    @endforeach
-                </select>
-            </div>       
             <div class="form-group mb-3" id="ccaas">
-                <label for="ministerio">Comunidad autónoma a la que pertenece el organo</label>
+                <label for="ministerio">Ministerio o CCAA del que depende.</label>
                 <br/>
                 <select name="ccaa" class="multiple-select form-control" title="Selecciona uno..." required>
                     @foreach($ccaas as $ccaa)
@@ -61,15 +52,15 @@
                 </select>
             </div>            
             <div class="form-group mb-3" id="pais">
-                <label for="pais">País del organismo</label>
+                <label for="ministerio">País del organismo</label>
                 <br/>
                 <select name="pais" class="multiple-select form-control" title="Selecciona uno..." required>
                     @foreach($paises as $pais)
                         <option value="{{$pais->iso2}}">{{$pais->Nombre_es}}</option>
                     @endforeach
                 </select>
-            </div>                 
-            <button type="submit" class="btn btn-primary">Crear Organo</button>
+            </div>            
+            <button type="submit" class="btn btn-primary">Crear Departamento</button>
         {{ html()->form()->close()}}
 	</div>
 	<div class="card-footer">

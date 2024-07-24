@@ -32,16 +32,16 @@
                 @endforeach
             </div>
         @endif
-        <form action="{{route('admineeditorgano')}}" method="post">
+        <form action="{{route('admineeditdepartamento')}}" method="post">
             @csrf
             <input type="hidden" name="id" value="{{$organismo->id}}">
             <input type="hidden" name="idempresa" value="{{$organismo->empresa->id}}">      
-            <div class="form-group mb-3" id="ministerio">
-                <label for="ministerio">Organismo superior</label>
+            <div class="form-group mb-3" id="ccaa">
+                <label for="ccaa">Organismo superior</label>
                 <br/>
-                <select name="ministerio" class="multiple-select" title="Selecciona uno..." data-live-search="true"  data-width="100%">
-                    @foreach($ministerios as $ministerio)
-                        <option value="{{$ministerio->id}}" @if($ministerio->id == $organismo->id_ministerio) selected @endif>{{$ministerio->Nombre}}</option>
+                <select name="ccaa" class="multiple-select" title="Selecciona uno..." data-live-search="true"  data-width="100%">
+                    @foreach($ccaas as $ccaa)
+                        <option value="{{$ccaa->id}}" @if($ccaa->id == $organismo->id_ccaa) selected @endif>{{$ccaa->Nombre}}</option>
                     @endforeach
                 </select>
             </div>            
@@ -78,7 +78,7 @@
                         <option value="{{$pais->iso2}}" @if($pais->iso2 == $organismo->pais) selected @endif>{{$pais->Nombre_es}}</option>
                     @endforeach
                 </select>
-            </div>                 
+            </div>           
             <div class="form-group">
                 <label for="descripcion">Descripcion</label>
                 <textarea cols="20" rows="4" class="form-control" name="descripcion" value="{{$organismo->Descripcion}}">{{$organismo->Descripcion}}</textarea>

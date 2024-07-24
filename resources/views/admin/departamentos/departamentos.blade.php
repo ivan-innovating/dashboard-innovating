@@ -9,7 +9,7 @@
 @section('content')
 <div class="card">
 	<div class="card-header">
-		<h3 class="card-title">Listado de Organos</h3>
+		<h3 class="card-title">Listado de Departamentos</h3>
 		<div class="card-tools">
 			<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
 			<i class="fas fa-minus"></i>
@@ -33,8 +33,8 @@
             </div>
         @endif
         <div class="text-right mb-3">                                      
-            <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#organismoModal">Buscar Organo</button>                                                
-            <a href="{{route('admincrearorgano')}}" class="btn btn-primary btn-sm">Crear organo</a>
+            <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#organismoModal">Buscar departamento</button>                                                
+            <a href="{{route('admincreardepartamento')}}" class="btn btn-primary btn-sm">Crear departamento</a>
         </div>
         <div class="table-responsive">        
             <table class="table table-hover text-nowrap f-14 w-100" id="table2">
@@ -52,32 +52,32 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($organos as $organo)
-                    <tr data-item="organo" id="organo{{$organo->id}}">
+                    @foreach($departamentos as $departamento)
+                    <tr data-item="departamento" id="departamento{{$departamento->id}}">
                         <td>
-                            <a href="{{route('admineeditarorgano', $organo->id)}}" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i></a>
-                            <button class="btn btn-sm btn-warning" onclick="copyContent('{{$organo->id}}')" title="Copiar Id departamento"><i class="fa-regular fa-clipboard"></i></button>
+                            <a href="{{route('admineditardepartamento', $departamento->id)}}" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i></a>
+                            <button class="btn btn-sm btn-warning" onclick="copyContent('{{$departamento->id}}')" title="Copiar Id departamento"><i class="fa-regular fa-clipboard"></i></button>
                         </td>
-                        <td>{{$organo->Tlr}}</td>
+                        <td>{{$departamento->Tlr}}</td>
                         <td>
-                            @if($organo->scrapper == 1)
+                            @if($departamento->scrapper == 1)
                                 <i class="fa-solid fa-spider"></i>
                                 <span class="d-none">1</span>
                             @else
                                 <span class="d-none">0</span>
                             @endif</td>
-                        <td>{{$organo->totalayudas}}</td>
-                        <td>{{$organo->totalconcesiones}}</td>
+                        <td>{{$departamento->totalayudas}}</td>
+                        <td>{{$departamento->totalconcesiones}}</td>
                         <td>
-                            {{$organo->Nombre}}
+                            {{$departamento->Nombre}}
                         </td>
                         <td>
-                            {{$organo->Acronimo}}
+                            {{$departamento->Acronimo}}
                         </td>
                         <td>
-                            {{$organo->url}}
+                            {{$departamento->url}}
                         </td>
-                        <td>{{$organo->Descripcion}}</td>
+                        <td>{{$departamento->Descripcion}}</td>
                     </tr>
                     @endforeach
                 </tbody>

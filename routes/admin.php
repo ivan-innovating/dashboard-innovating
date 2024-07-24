@@ -82,6 +82,10 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::post('/admin/editorgano', [\App\Http\Controllers\DashboardOrganosController::class, 'editOrgano'])->name('admineeditorgano');
 
     Route::get('/admin/departamentos', [\App\Http\Controllers\DashboardOrganosController::class, 'departamentos'])->name('admindepartamentos');
+    Route::get('/admin/creardepartamento', [\App\Http\Controllers\DashboardOrganosController::class, 'crearDepartamento'])->name('admincreardepartamento');
+    Route::post('/admin/savedepartamento', [\App\Http\Controllers\DashboardOrganosController::class, 'saveDepartamento'])->name('adminsavedepartamento');
+    Route::get('/admin/editardepartamento/id/{id}', [\App\Http\Controllers\DashboardOrganosController::class, 'editarDepartamento'])->name('admineditardepartamento');
+    Route::post('/admin/editdepartamento', [\App\Http\Controllers\DashboardOrganosController::class, 'editDepartamento'])->name('admineeditdepartamento');
     Route::get('/admin/ministerios', [\App\Http\Controllers\DashboardOrganosController::class, 'ministerios'])->name('adminministerios');
     Route::get('/admin/ccaas', [\App\Http\Controllers\DashboardOrganosController::class, 'ccaas'])->name('adminccaas');
 

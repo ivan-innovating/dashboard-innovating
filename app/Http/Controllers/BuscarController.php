@@ -270,11 +270,19 @@ class BuscarController extends Controller
             $html = "<ul>";
         }
 
-        foreach($organismos as $org){ 
+        foreach($organos as $org){ 
             if($request->get('url') === null){                       
                 $html .= "<li><a type='button' class='setorganismo txt-azul' data-item='".$org->id."'>(".$org->Acronimo."): ".$org->Nombre."</a></li>";            
             }else{
                 $html .= "<li><a href='".route('admineeditarorgano', $org->id)."' class='txt-azul'>(".$org->Acronimo."): ".$org->Nombre."</a></li>";            
+            }
+        }
+
+        foreach($departamentos as $org){ 
+            if($request->get('url') === null){                       
+                $html .= "<li><a type='button' class='setorganismo txt-azul' data-item='".$org->id."'>(".$org->Acronimo."): ".$org->Nombre."</a></li>";            
+            }else{
+                $html .= "<li><a href='".route('admineditardepartamento', $org->id)."' class='txt-azul'>(".$org->Acronimo."): ".$org->Nombre."</a></li>";            
             }
         }
 

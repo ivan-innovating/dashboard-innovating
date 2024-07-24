@@ -29,7 +29,7 @@ class moveCDTIProjectsToInnovating extends Command
     public function handle()
     {
         //
-        $rawdata = \App\Models\ProyectosRawData::get();
+        $rawdata = \App\Models\ProyectosRawData::where('updated_at', '>=', Carbon::now()->subDays(1))->get();
 
         $ocurrences = array('/ s.a.$/', '/ s.l.$/', '/ S.A.$/', '/ S.L.$/', '/ SA$/', '/ SL$/', '/ SAU$/', '/ S.A.U.$/', '/ s.a.u.$/', '/ sa.$/', '/ sl.$/', '/ sau.$/', '/ S.A.L.$/', '/ S.L.L$/', '/ S L$/', '/ s.a.$/',
         '/ slp$/', '/ slu$/', '/ slne$/', '/ slg$/', '/ sll$/', '/ s.a.$/');
@@ -37,16 +37,12 @@ class moveCDTIProjectsToInnovating extends Command
         foreach($rawdata as $data){
             $values = json_decode($data->jsondata, true);
             $tipoConvocatoria = "Individual";
-            $lider = false;
             if(str_ends_with($values['TituloProyecto'], ")")){                
                 $substr = substr($values['TituloProyecto'],strripos($values['TituloProyecto'],"("), strlen($values['TituloProyecto']));                
                 if(strripos($substr, "/") !== false && strlen($substr) <= 7){
                     $tipoConvocatoria = "Consorcio";
                     $values['TituloProyecto'] = trim(substr($values['TituloProyecto'],0, strripos($values['TituloProyecto'],"(")));                    
                 }                                
-                if(strripos($substr, "(1/") !== false){
-                    $lider = true;
-                }
             }            
 
             $values['CodigoEntidad'] = str_replace("-","",$values['CodigoEntidad']);
@@ -54,29 +50,36 @@ class moveCDTIProjectsToInnovating extends Command
             $unix = substr(time(),-6);
             $expediente = "INV".$data->id.$unix;
             $nombre = preg_replace($ocurrences, '', $values['RazonSocial'], 1);
+            $convocatoria = (isset($values['id_convocatoria'])) ? \App\Models\Ayudas::find($values['id_convocatoria']) : null;
+            $organismo = \App\Models\Organos::find($data->id_organismo);
+            if(!$organismo){
+                $organismo = \App\Models\Departamentos::find($data->id_organismo);
+            }
 
-            $proyecto = \App\Models\Proyectos::where('id_raw_data', $data->id)->where('id_organismo', $data->id_organimo)->first();
+            $acronimo = ($organismo->Acronimo !== null && $organismo->Acronimo != "") ? $organismo->Acronimo : substr($organismo->Nombre,0, 5); #{AcronimoOrganismo){values['IdTipologia']}{unixtime};
+            $acronimo .= $values['IdTipologia'].$unix;
+            
+            $proyecto = \App\Models\Proyectos::where('organismo', $data->id_organismo)->where('Titulo', $values['TituloProyecto'])->first();
 
             if(!$proyecto){
                 $proyecto = new \App\Models\Proyectos();
 
                 try{
                     $proyecto->id_raw_data = $data->id;
-                    $proyecto->organismo = $data->id_organimo;
-                    if($lider === true){
-                        $proyecto->empresaPrincipal = $values['CodigoEntidad'];
-                        $proyecto->nombreEmpresa = $nombre;
-                    }else{
-                        $proyecto->empresaPrincipal = "XXXXXXXXX";
-                    }
+                    $proyecto->organismo = $data->id_organismo;
+                    $proyecto->empresaPrincipal = $values['CodigoEntidad'];
+                    $proyecto->nombreEmpresa = $nombre;
+                    $proyecto->PresupuestoSocio = ($values['Presupuesto'] !== null && $values['Presupuesto'] > 0) ? (float)$values['Presupuesto'] : 0;
+                    $proyecto->AyudaEqSocio = ($values['AportacionCDTI'] !== null && $values['AportacionCDTI'] > 0) ? (float)$values['AportacionCDTI'] : 0;
                     $proyecto->empresasParticipantes = json_encode([]);
+                    $proyecto->NumParticipantes = 1;
                     $proyecto->idAyuda = (isset($values['id_convocatoria'])) ? $values['id_convocatoria'] : null;
                     $proyecto->Titulo = $values['TituloProyecto']; 
                     $proyecto->uri = $uri;               
                     $proyecto->importado = 1;
                     $proyecto->esEuropeo = 0;
                     $proyecto->tipoConvocatoria = $tipoConvocatoria;
-                    $proyecto->ambitoConvocatoria = 'nacional';
+                    $proyecto->ambitoConvocatoria = 'nacional'; ##comprobar si es el organismo tiene pais "ES" = nacional sino es internacional
                     $proyecto->Fecha = Carbon::parse($values['FechaAprobacion'])->format('Y-m-d');
                     $proyecto->Estado = "Cerrado";
                     $proyecto->Tematicas = $values['AreaSectorialN1'].",".$values['AreaSectorialN2'];
@@ -84,15 +87,22 @@ class moveCDTIProjectsToInnovating extends Command
                     $proyecto->Expediente = $expediente;
                     $proyecto->PresupuestoTotal = $values['Presupuesto'];
                     $proyecto->AyudaEq = $values['AportacionCDTI'];
-                    //$proyectonuevo->FinanciacionPublica = (float)str_replace(".","",$row['financiacion_publica_del_proyecto']);                                    
-                    //$proyecto->Acronimo = $data->id;
-                    //$proyecto->tituloAyuda = $row['nombre_ayuda'];
-                    //$proyecto->save();
-                    //$proyecto->PresupuestoSocio = (float)str_replace(".","",$row['presupuesto_socio']);
-                    //$proyecto->AyudaEqSocio = ($row['ayuda_pub_eq_socio'] !== null) ? (float)str_replace(".","",$row['ayuda_pub_eq_socio']) : null;
-                    //$proyecto->tipoFinanPublica = $row['financiacion_publica_del_socio'];
+                    $proyecto->FinanciacionPublica = 0; 
+                    #$proyecto->Acronimo = $acronimo; #{AcronimoOrganismo){values['IdTipologia']}{unixtime} #posible valor interno
+                    if($convocatoria){
+                        $proyecto->tituloAyuda = $convocatoria->Titulo;   
+                        $proyecto->idAyudaAcronimo = $convocatoria->IdConvocatoriaStr;
+                        #si convocatoria tipoFinanPublica => #Subvención = fondo || #Préstamo = credito || #Subvención/Préstamo = fondo y credito
+                        if(in_array("Fondo perdido", json_decode($convocatoria->TipoFinanciacion),true) && in_array("Crédito", json_decode($convocatoria->TipoFinanciacion),true)){
+                            $proyecto->tipoFinanPublica = "Subvención/Préstamo";    
+                        }elseif(in_array("Fondo perdido", json_decode($convocatoria->TipoFinanciacion),true) && !in_array("Crédito", json_decode($convocatoria->TipoFinanciacion),true)){
+                            $proyecto->tipoFinanPublica = "Subvención";    
+                        }elseif(!in_array("Fondo perdido", json_decode($convocatoria->TipoFinanciacion),true) && in_array("Crédito", json_decode($convocatoria->TipoFinanciacion),true)){
+                            $proyecto->tipoFinanPublica = "Préstamo";    
+                        }
+                    }                
+                    $proyecto->save();
                                                     
-
                 }catch(Exception $e){
                     Log::error($e->getMessage());
                     return COMMAND::FAILURE;
@@ -107,20 +117,28 @@ class moveCDTIProjectsToInnovating extends Command
                             'id_concesion' => null,
                         ],
                         [
-                            'presupuesto_socio' => ($values['Presupuesto'] !== null) ? (float)$values['Presupuesto'] : null,
-                            'ayuda_eq_socio' => ($values['AportacionCDTI'] !== null) ? (float)$values['AportacionCDTI'] : null,
+                            'presupuesto_socio' => ($values['Presupuesto'] !== null && $values['Presupuesto'] > 0) ? (float)$values['Presupuesto'] : null,
+                            'ayuda_eq_socio' => ($values['AportacionCDTI'] !== null && $values['AportacionCDTI'] > 0) ? (float)$values['AportacionCDTI'] : null,
                         ]
                     );
                 }catch(Exception $e){
                     Log::error($e->getMessage());
                     return COMMAND::FAILURE;
                 }
-            }else{
-                
+            }else{                
+
                 try{
-                    if($lider === true){
+                    if((float)$values['Presupuesto'] > (float)$proyecto->PresupuestoSocio){
                         $proyecto->empresaPrincipal = $values['CodigoEntidad'];
-                        $proyecto->nombreEmpresa = $nombre;                        
+                        $proyecto->nombreEmpresa = $nombre; 
+                        $proyecto->PresupuestoSocio = ($values['Presupuesto'] !== null && $values['Presupuesto'] > 0) ? (float)$values['Presupuesto'] : 0;
+                        $proyecto->AyudaEqSocio = ($values['AportacionCDTI'] !== null && $values['AportacionCDTI'] > 0) ? (float)$values['AportacionCDTI'] : 0;                       
+                    }
+                    $participantes = json_decode($proyecto->empresasParticipantes);
+                    if(!in_array($values['CodigoEntidad'], $participantes)){
+                        array_push($participantes, $values['CodigoEntidad']);
+                        $proyecto->empresasParticipantes = json_encode($participantes);
+                        $proyecto->NumParticipantes = $proyecto->NumParticipantes +1;
                     }
                     $proyecto->PresupuestoTotal = $proyecto->PresupuestoTotal + $values['Presupuesto'];
                     $proyecto->AyudaEq = $proyecto->AyudaEq + $values['AportacionCDTI'];
@@ -139,8 +157,8 @@ class moveCDTIProjectsToInnovating extends Command
                             'id_concesion' => null                            
                         ],
                         [
-                            'presupuesto_socio' => ($values['Presupuesto'] !== null) ? (float)str_replace(".","",$values['Presupuesto']) : null,
-                            'ayuda_eq_socio' => ($values['AportacionCDTI'] !== null) ? (float)str_replace(".","",$values['AportacionCDTI']) : null,
+                            'presupuesto_socio' => ($values['Presupuesto'] !== null && $values['Presupuesto'] > 0) ? (float)$values['Presupuesto'] : null,
+                            'ayuda_eq_socio' => ($values['AportacionCDTI'] !== null && $values['AportacionCDTI'] > 0) ? (float)$values['AportacionCDTI'] : null,
                         ]
                     );
                 }catch(Exception $e){
