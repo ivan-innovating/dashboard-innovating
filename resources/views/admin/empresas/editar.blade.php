@@ -186,8 +186,8 @@
                         $lineas = json_decode($empresa->TextosLineasTec, true);
                     @endphp
                 @endif                
-                <label>{{__('Líneas Tecnológicas')}}:</label>
-                <select class="form-control js-example-tags" multiple="multiple" name="tagsanalisis[]">
+                <label><span class="text-danger">*</span> {{__('Líneas Tecnológicas')}}:</label>
+                <select class="form-control js-example-tags" multiple="multiple" name="tagsanalisis[]" required>
                     @if(isset($lineas) && !empty($lineas))
                         @foreach($lineas as $linea)
                             <option value="{{$linea}}" selected="selected">{{$linea}}</option>

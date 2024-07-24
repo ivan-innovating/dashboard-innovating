@@ -124,8 +124,7 @@ class DashboardEmpresasController extends Controller
 
     public function editarEmpresas($cif, $id){
 
-
-        $empresa = \App\Models\Entidad::where('CIF', $cif)->where('id', $id)->first();
+        $empresa = \App\Models\Entidad::where('CIF', $cif)->first();
         $nozoho = 0;
         if(!$empresa){
             $empresa = DB::table('CifsnoZoho')->where('id', $id)->where('CIF', $cif)->first();
@@ -153,7 +152,7 @@ class DashboardEmpresasController extends Controller
         $paises = \App\Models\Paises::all();
         $cnaes = \App\Models\Cnaes::all();
 
-        if($empresa->esCentroTecnologico == 1){
+        if(isset($empresa->esCentroTecnologico) && $empresa->esCentroTecnologico == 1){
 
             $organos = \App\Models\Organos::all()->toArray();
             $departamentos = \App\Models\Departamentos::all()->toArray();
@@ -241,7 +240,10 @@ class DashboardEmpresasController extends Controller
 
         if($request->get('noeszoho') == 1){
             try{
-                $entidad = new \App\Models\Entidad();                
+                $entidad = \App\Models\Entidad::where('CIF', $request->get('cif'))->first();    
+                if(!$entidad){
+                    $entidad = new \App\Models\Entidad();                
+                }
                 $entidad->Nombre = $request->get('nombre');
                 $entidad->Marca = $request->get('marca');
                 $entidad->uri = $uri;
@@ -261,7 +263,9 @@ class DashboardEmpresasController extends Controller
                 $entidad->EntityUpdate = Carbon::now();
                 $entidad->UpdatedBy = Auth::user()->email;
                 $entidad->created_at = Carbon::now();
+                $entidad->save();
             }catch(Exception $e){
+                Log::error($e->getMessage());
                 return redirect()->back()->withErrors("Error en la actualización de la empresa");
             }
 
@@ -270,6 +274,7 @@ class DashboardEmpresasController extends Controller
                 
                 if(!$textos){
                     $textos = new \App\Models\TextosElastic();
+                    $textos->CIF = $request->get('cif');
                 }
                 
                 $textos->Textos_Documentos = $request->get('textos_documentos');
@@ -279,7 +284,8 @@ class DashboardEmpresasController extends Controller
                 $textos->Last_Update = Carbon::now();
                 $textos->save();
             }catch(Exception $e){
-                return redirect()->back()->withErrors("Error en la actualización de los textos elastic de la empresa");
+                Log::error($e->getMessage());
+                return redirect()->back()->withErrors("Error en la actualización de los textos elastic de la empresa 2");
             }
 
             try{
@@ -289,13 +295,17 @@ class DashboardEmpresasController extends Controller
                     ]
                 );
             }catch(Exception $e){
+                Log::error($e->getMessage());
                 return redirect()->back()->withErrors("Error en la actualización de los datos CifsNoZoho");
             }            
 
         }else{
 
             try{
-                $entity = \App\Models\Entidad::where('CIF', $request->get('cif'))->first();                
+                $entity = \App\Models\Entidad::where('CIF', $request->get('cif'))->first();    
+                if(!$entity){
+                    $entity = new \App\Models\Entidad();                
+                }
                 $entity->Nombre = $request->get('nombre');
                 $entity->Marca = $request->get('marca');
                 $entity->uri = $request->get('uri');
@@ -321,6 +331,7 @@ class DashboardEmpresasController extends Controller
                 $entity->einforma->save();                
 
             }catch(Exception $e){
+                Log::error($e->getMessage());
                 return redirect()->back()->withErrors("Error en la actualización de la empresa");
             }
 
@@ -329,6 +340,7 @@ class DashboardEmpresasController extends Controller
                 
                 if(!$textos){
                     $textos = new \App\Models\TextosElastic();
+                    $textos->CIF = $request->get('cif');
                 }
                 
                 $textos->Textos_Documentos = $request->get('textos_documentos');
@@ -338,7 +350,8 @@ class DashboardEmpresasController extends Controller
                 $textos->Last_Update = Carbon::now();
                 $textos->save();
             }catch(Exception $e){
-                return redirect()->back()->withErrors("Error en la actualización de los textos elastic de la empresa");
+                Log::error($e->getMessage());
+                return redirect()->back()->withErrors("Error en la actualización de los textos elastic de la empresa 3");
             }
 
 
