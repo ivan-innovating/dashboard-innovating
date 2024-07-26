@@ -105,8 +105,25 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     
     ### RUTAS PARA GESTION DE PROYECTOS
     Route::get('/admin/proyectosimportados', [\App\Http\Controllers\DashboardProyectosController::class, 'proyectosImportados'])->name('adminsproyectosimportados');
-    Route::get('/admin/proyectoscreados', [\App\Http\Controllers\DashboardProyectosController::class, 'proyectosCreados'])->name('adminproyectoscreados');
-    Route::get('/admin/asignardatosproyectos', [\App\Http\Controllers\DashboardProyectosController::class, 'asignarDatosProyectos'])->name('adminasignardatosproyectos');
+    Route::get('/admin/proyectoscreados', [\App\Http\Controllers\DashboardProyectosController::class, 'proyectosUsuario'])->name('adminproyectoscreados');
+    Route::get('/admin/proyectoseuropeos', [\App\Http\Controllers\DashboardProyectosController::class, 'proyectosEuropeos'])->name('adminproyectoseuropeos');
+    Route::get('/admin/asignardatosproyectos', [\App\Http\Controllers\DashboardProyectosController::class, 'asignadorDatosProyectos'])->name('adminasignadordatosproyectos');
+    Route::post('/admin/asignardatos', [\App\Http\Controllers\DashboardProyectosController::class, 'asignarDatosProyectos'])->name('adminasignardatosproyectos');
+    Route::get('/organismo-getconvocatorias', function(Request $request){
+
+        $filterLinea = $request->input('linea');
+        $convocatorias = collect();
+        if($filterLinea !== null){
+            $convocatorias = \App\Models\Ayudas::select('Titulo','IdConvocatoriaStr','Acronimo','id')->where('id_ayuda', $filterLinea)->get();
+            foreach($convocatorias as $convocatoria){
+                $convocatoria->idstring = (string) $convocatoria->id;
+            }
+        }
+        #dump($convocatorias);
+        return response()->json($convocatorias, 200);
+    })->name('getconvocatorias');
+   
+    
     Route::get('/admin/editarproyecto/id/{id}', [\App\Http\Controllers\DashboardProyectosController::class, 'editarProyecto'])->name('admineditarproyecto');
     Route::post('/admin/editproyecto', [\App\Http\Controllers\DashboardScrapperController::class, 'editProyecto'])->name('admineditproyecto');
     Route::get('/admin/viewdatoscordis', [\App\Http\Controllers\DashboardProyectosController::class, 'viewDatosCordis'])->name('adminviewdatoscordis');

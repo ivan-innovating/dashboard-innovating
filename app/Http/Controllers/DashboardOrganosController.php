@@ -197,4 +197,22 @@ class DashboardOrganosController extends Controller
 
         return redirect()->back()->withSuccess('Organismo actualizado correctamente');
     }
+
+    public function ministerios(){
+
+        $ministerios = \App\Models\Ministerios::orderByDesc('updated_at')->orderByDesc('created_at')->get();
+        
+        return view('admin.ministerios.ministerios', [
+            'ministerios' => $ministerios
+        ]);
+    }
+
+    public function ccaas(){
+
+        $ccaas = \App\Models\Ccaa::orderByDesc('updated_at')->orderByDesc('created_at')->get();
+        
+        return view('admin.ccaas.ccaas', [
+            'ccaas' => $ccaas
+        ]);
+    }
 }

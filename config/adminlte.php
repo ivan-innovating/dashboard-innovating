@@ -447,6 +447,11 @@ return [
                     'icon' => 'fas fa-fw fa-file-arrow-up',
                 ],
                 [
+                    'text' => 'Proyectos europeos',
+                    'url' => 'admin/proyectoseuropeos',
+                    'icon' => 'fas fa-fw fa-earth-europe',
+                ],
+                [
                     'text' => 'Proyectos creados',
                     'url' => 'admin/proyectoscreados',
                     'icon' => 'fas fa-fw fa-pen-ruler',

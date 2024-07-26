@@ -1232,4 +1232,141 @@ class DashboardProyectosController extends Controller
 
         return response()->json('Asociada correctamente el proyecto a esa empresa', 200);
     }
+
+    public function proyectosUsuario(){
+
+        $proyectoscreados = \App\Models\Proyectos::where('creadoUsuario', 1)->orderBy('updated_at')->orderBy('created_at')->paginate(100);
+
+        return view('admin.proyectos.proyectoscreados', [
+            'proyectos' => $proyectoscreados            
+        ]);
+
+    }
+
+    public function proyectosEuropeos(){
+
+        $proyectoseuropeos = \App\Models\Proyectos::where('esEuropeo', 1)->orderByDesc('Fecha')->orderBy('updated_at')->orderBy('created_at')->paginate(100);
+
+        return view('admin.proyectos.proyectoseuropeos', [
+            'proyectos' => $proyectoseuropeos
+        ]);
+    
+    }
+
+    public function asignadorDatosProyectos(Request $request){
+
+        $organos = \App\Models\Organos::all();
+        $departamentos = \App\Models\Departamentos::all();
+        $convocatorias = \App\Models\Convocatorias::orderBy('titulo')->get();
+        $organismo = ($request->get('organo') !== null) ? $request->get('organo') : $request->get('departamento');
+        
+        if($request->get('ayuda') !== null){
+            $ayudas = \App\Models\Ayudas::where('id_ayuda', $request->get('ayuda'))->orderBy('Titulo')->get();
+        }else{
+            $ayudas = \App\Models\Ayudas::orderBy('Titulo')->get();
+        }
+
+        $proyectos = null;
+        $concesiones = null;
+        $totalproyectos = 0;
+        $organismo = ($request->get('organo') !== null) ? $request->get('organo') : $request->get('departamento');
+
+
+        if($request->get('tipo') !== null && $request->get('tipo') == "proyectos"){
+            if($request->get('texto_convocatoria') !== null){
+                $proyectos = \App\Models\Proyectos::where('organismo', $organismo)->where('id_europeo', $request->get('texto_convocatoria'))->orderBy('updated_at')->take(100)->get();
+                $totalproyectos = \App\Models\Proyectos::where('organismo', $organismo)->where('id_europeo', $request->get('texto_convocatoria'))->count();
+            }
+            if($request->get('texto_referencia') !== null){
+                $proyectos = \App\Models\Proyectos::where('organismo', $organismo)->where('Acronimo', 'LIKE', $request->get('texto_referencia').'%')->orderBy('updated_at')->take(100)->get();
+                $totalproyectos = \App\Models\Proyectos::where('organismo', $organismo)->where('Acronimo', 'LIKE', $request->get('texto_referencia').'%')->count();
+            }
+            //dump($request->all());
+        }
+
+        return view('admin.proyectos.asignardatos', [
+            'organos' => $organos,
+            'departamentos' => $departamentos,
+            'convocatorias' => $ayudas,
+            'ayudas' => $convocatorias,
+            'proyectos' => $proyectos,
+            'totalproyectos' => $totalproyectos,
+            'concesiones' => $concesiones
+
+        ]);
+    }
+
+    public function asignarDatosProyectos(Request $request){
+        $organismo = ($request->get('organo') !== null) ? $request->get('organo') : $request->get('departamento');
+
+        if($request->get('tipo') !== null && $request->get('tipo') == "proyectos"){
+
+            if($request->get('convocatoria') !== null){
+                $ayuda = \App\Models\Ayudas::where('id', $request->get('convocatoria'))->where('id_ayuda', $request->get('ayuda'))->first();
+            }else{
+                $ayuda = \App\Models\Ayudas::where('id_ayuda', $request->get('ayuda'))->first();
+            }
+
+            if(!$ayuda){
+                $ayuda = \App\Models\Convocatorias::find($request->get('ayuda'));
+                if(!$ayuda){
+                    log::error("No se ha encontrado la ayuda para los datos: ".$request->get('convocatoria')." - ".$request->get('ayuda'));
+                    return redirect()->back()->withErrors('Error al asignar proyectos por texto convocatoria, 001');
+                }
+            }
+
+            if($request->get('texto_convocatoria') !== null){
+                try{
+                    if($request->get('ayuda') !== null){
+                        \App\Models\Proyectos::where('organismo', $organismo)->where('Acronimo', 'LIKE', $request->get('texto_convocatoria').'%')->update(
+                            [
+                                'idAyudaAcronimo' => ($request->get('convocatoria') !== null) ? $ayuda->IdConvocatoriaStr: null,
+                                'idConvocatoriaAcronimo' => ($request->get('ayuda') !== null) ? $request->get('ayuda') : null,
+                            ]
+                        );
+                    }else{
+                        \App\Models\Proyectos::where('organismo', $organismo)->where('Acronimo', 'LIKE', $request->get('texto_convocatoria').'%')->update(
+                            [
+                                'idAyudaAcronimo' => $ayuda->IdConvocatoriaStr,
+                            ]
+                        );
+                    }
+                }catch(Exception $e){
+                    log::error($e->getMessage());
+                    return redirect()->back()->withErrors('Error al asignar proyectos por texto convocatoria, 002');
+                }
+            }
+            if($request->get('texto_referencia') !== null){
+                try{
+                    if($request->get('ayuda') !== null){
+                        \App\Models\Proyectos::where('organismo', $organismo)->where('Acronimo', 'LIKE', $request->get('texto_referencia').'%')->update(
+                            [
+                                'idAyudaAcronimo' => ($request->get('convocatoria') !== null) ? $ayuda->IdConvocatoriaStr: null,
+                                'idConvocatoriaAcronimo' => ($request->get('ayuda') !== null) ? $request->get('ayuda') : null,
+                            ]
+                        );
+                    }else{
+                        \App\Models\Proyectos::where('organismo', $organismo)->where('Acronimo', 'LIKE', $request->get('texto_referencia').'%')->update(
+                            [
+                                'idAyudaAcronimo' => $ayuda->IdConvocatoriaStr,
+                            ]
+                        );
+                    }
+                }catch(Exception $e){
+                    log::error($e->getMessage());
+                    return redirect()->back()->withErrors('Error al asignar proyectos por texto referencia empieza por, 003');
+                }
+            }
+            //dump($request->all());
+        }
+
+        $total = 0;
+        if($request->get('texto_convocatoria') !== null){
+            $total = \App\Models\Proyectos::where('organismo', $organismo)->where('Acronimo', 'LIKE', $request->get('texto_convocatoria').'%')->count();
+        }else{
+            $total = \App\Models\Proyectos::where('organismo', $organismo)->where('Acronimo', 'LIKE', $request->get('texto_referencia').'%')->count();
+        }
+
+        return redirect()->back()->withSuccess($total.': proyectos asignados correctamente.');
+    }
 }
