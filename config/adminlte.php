@@ -517,13 +517,19 @@ return [
         ],
         [
             'text' => 'Patentes',
-            'url' => 'admin/settings',
             'icon' => 'fas fa-fw fa-stamp',
-        ],
-        [
-            'text' => 'Gestión cache',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-trash',
+            'submenu' => [
+                [
+                    'text' => 'Patentes con CIF',
+                    'url' => 'admin/patentes',
+                    'icon' => 'fas fa-fw fa-circle-check',
+                ],
+                [
+                    'text' => 'Patentes sin CIF',
+                    'url' => 'admin/patentessincif',
+                    'icon' => 'fas fa-fw fa-circle-xmark',
+                ],
+            ]
         ],
         [
             'text' => 'Gestión página de ayuda',

@@ -109,7 +109,7 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::get('/admin/proyectoseuropeos', [\App\Http\Controllers\DashboardProyectosController::class, 'proyectosEuropeos'])->name('adminproyectoseuropeos');
     Route::get('/admin/asignardatosproyectos', [\App\Http\Controllers\DashboardProyectosController::class, 'asignadorDatosProyectos'])->name('adminasignadordatosproyectos');
     Route::post('/admin/asignardatos', [\App\Http\Controllers\DashboardProyectosController::class, 'asignarDatosProyectos'])->name('adminasignardatosproyectos');
-    Route::get('/organismo-getconvocatorias', function(Request $request){
+    Route::get('/admin/organismo-getconvocatorias', function(Request $request){
 
         $filterLinea = $request->input('linea');
         $convocatorias = collect();
@@ -134,4 +134,10 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::get('/admin/usuariossinempresa', [\App\Http\Controllers\DashboardUsuariosController::class, 'usersSinEmpresa'])->name('adminsusuariossinempresa');
     Route::get('/admin/usuariosconempresa', [\App\Http\Controllers\DashboardUsuariosController::class, 'usersConEmpresa'])->name('adminsusuariosconempresa');
     Route::get('/admin/investigadores', [\App\Http\Controllers\DashboardUsuariosController::class, 'investigadores'])->name('admininvestigadores');
+
+    ### RUTAS GESTION DE PATENTES
+    Route::get('/admin/patentes', [\App\Http\Controllers\DashboardPatentesController::class, 'patentes'])->name('adminpatentes');
+    Route::get('/admin/patentessincif', [\App\Http\Controllers\DashboardPatentesController::class, 'patentesSinCIF'])->name('adminpatentessincif');
+    Route::get('/admin/editarpatente/id/{id}', [\App\Http\Controllers\DashboardPatentesController::class, 'editarPatente'])->name('admineditarpatente');
+    Route::post('/admin/editpatente', [\App\Http\Controllers\DashboardPatentesController::class, 'editPatente'])->name('admineditpatente');
 });
