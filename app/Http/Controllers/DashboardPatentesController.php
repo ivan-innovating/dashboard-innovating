@@ -32,8 +32,6 @@ class DashboardPatentesController extends Controller
         ]);
     }
 
-
-
     public function editarPatente(Request $request){
 
         $patente = \App\Models\Patentes::where('id', $request->route('id'))->first();

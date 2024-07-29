@@ -533,8 +533,19 @@ return [
         ],
         [
             'text' => 'Gestión página de ayuda',
-            'url' => 'admin/settings',
             'icon' => 'fas fa-fw fa-circle-info',
+            'submenu' => [
+                [
+                    'text' => 'Páginas de ayuda',
+                    'url' => 'admin/paginasayuda',
+                    'icon' => 'fas fa-fw fa-circle-question',
+                ],
+                [
+                    'text' => 'Carpetas páginas de ayuda',
+                    'url' => 'admin/carpetasayuda',
+                    'icon' => 'fas fa-fw fa-folder-open',
+                ],
+            ]
         ],
         [
             'text' => 'Gestión condiciones financieras',

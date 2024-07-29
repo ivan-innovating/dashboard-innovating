@@ -140,4 +140,15 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::get('/admin/patentessincif', [\App\Http\Controllers\DashboardPatentesController::class, 'patentesSinCIF'])->name('adminpatentessincif');
     Route::get('/admin/editarpatente/id/{id}', [\App\Http\Controllers\DashboardPatentesController::class, 'editarPatente'])->name('admineditarpatente');
     Route::post('/admin/editpatente', [\App\Http\Controllers\DashboardPatentesController::class, 'editPatente'])->name('admineditpatente');
+
+    ### RUTAS GESTION DE PAGINAS DE AYUDA
+    Route::get('/admin/paginasayuda', [\App\Http\Controllers\DashboardPaginaAyudaController::class, 'paginasAyuda'])->name('adminpaginasayuda');
+    Route::get('/admin/carpetasayuda', [\App\Http\Controllers\DashboardPaginaAyudaController::class, 'carpetasAyuda'])->name('admincarpetasayuda');
+    Route::post('/admin/editcarpeta', [\App\Http\Controllers\DashboardPaginaAyudaController::class, 'editCarpeta'])->name('admineditcarpeta');
+    Route::get('/admin/editarpaginaayuda/id/{id}', [\App\Http\Controllers\DashboardPaginaAyudaController::class, 'editarPagina'])->name('admineditarpagina');
+    Route::get('/admin/editarcarpetaayuda/id/{id}', [\App\Http\Controllers\DashboardPaginaAyudaController::class, 'editarCarpeta'])->name('admineditarcarpeta');
+    Route::get('/admin/crearpagina', [\App\Http\Controllers\DashboardPaginaAyudaController::class, 'crearPagina'])->name('adminecrearpagina');
+    Route::get('/admin/crearcarpeta', [\App\Http\Controllers\DashboardPaginaAyudaController::class, 'crearCarpeta'])->name('adminecrearcarpeta');
+    Route::post('/admin/editpagina', [\App\Http\Controllers\DashboardPaginaAyudaController::class, 'editPagina'])->name('admineditpagina');
+    Route::post('/admin/editcarpeta', [\App\Http\Controllers\DashboardPaginaAyudaController::class, 'editCarpeta'])->name('admineditcarpeta');
 });
