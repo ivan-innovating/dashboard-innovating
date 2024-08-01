@@ -151,4 +151,7 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::get('/admin/crearcarpeta', [\App\Http\Controllers\DashboardPaginaAyudaController::class, 'crearCarpeta'])->name('adminecrearcarpeta');
     Route::post('/admin/editpagina', [\App\Http\Controllers\DashboardPaginaAyudaController::class, 'editPagina'])->name('admineditpagina');
     Route::post('/admin/editcarpeta', [\App\Http\Controllers\DashboardPaginaAyudaController::class, 'editCarpeta'])->name('admineditcarpeta');
+
+
+    Route::get('admin/statsgenerales', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'statsGenerales'])->name('adminstatsgenerales');
 });

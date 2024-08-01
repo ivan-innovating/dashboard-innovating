@@ -551,16 +551,16 @@ return [
             'text' => 'Gestión condiciones financieras',
             'url' => 'admin/settings',
             'icon' => 'fas fa-fw fa-list-check',
-        ],
-        [
-            'text' => 'Gestión SEO',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-window-maximize',
-        ],
+        ],     
         [
             'text' => 'Enviar datos Beagle',
             'url' => 'admin/settings',
             'icon' => 'fas fa-fw fa-shield-dog',
+        ],
+        [
+            'text' => 'Estadísticas generales',
+            'url' => 'admin/statsgenerales',
+            'icon' => 'fas fa-fw fa-chart-pie',
         ],
         [
             'text' => 'Configuración',
