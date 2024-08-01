@@ -1444,59 +1444,8 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function viewScrapper(Request $request){
 
-        $scrapper = DB::table('settings')->where('group', 'scrapper')->where('id', $request->route('id'))->first();
-
-        if(!$scrapper){
-            return abort(404);
-        }
-
-        $datos = json_decode($scrapper->payload,true);
-        $scrapper->datos = $datos;
-
-        $search = explode("-",$scrapper->name);
-        if($search[0] == "organo"){
-            $orgdpto = DB::table('organos')->where('id', $search[1])->select(['Nombre'])->first();
-        }
-        if($search[0] == "departamento"){
-            $orgdpto = DB::table('departamentos')->where('id', $search[1])->select(['Nombre'])->first();
-        }
-
-        $scrapper->orgdpto = $orgdpto;
-
-        return view('dashboard/editscrapper', [
-            'scrapper' => $scrapper,
-        ]);
-    }
-
-    public function editarScrapper(Request $request){
-
-        if($request->get('setnull')){
-            $update = null;
-        }else{
-            $update = Carbon::createFromFormat('d/m/Y H:i:s', $request->get('inicio'))->format('Y-m-d H:i:s');
-        }
-
-        $jsonddbb =  DB::table('settings')->where('id', $request->get('id'))->select(['payload'])->first();
-
-        $jsondata = json_decode($jsonddbb->payload, true);
-
-        $jsondata['current'] = $request->get('ultima');
-
-        try{
-            DB::table('settings')->where('id', $request->get('id'))->update([
-                'payload' => json_encode($jsondata),
-                'updated_at' => $update,
-            ]);
-        }catch(Exception $e){
-            return redirect()->back()->withErrors('Error al actualizar los datos');
-        }
-
-        return redirect()->back()->withSuccess('Scrapper actualizado correctamente');
-
-    }
-
+  
     public function patentes(){
 
         $patentes = \App\Models\Patentes::all();
@@ -2652,65 +2601,6 @@ class DashboardController extends Controller
         return redirect()->back()->withSuccess('Noticia actualizada correctamente');
     }
 
-    public function createCondicionRecompensa(Request $request){
-
-        try{
-            $condicion = new \App\Models\CondicionesRecompensas();
-            $condicion->tipo_premio = $request->get('tipo');
-            $condicion->dato = $request->get('dato');
-            $condicion->condicion = $request->get('condicion_incumple');
-            $condicion->dato2 = $request->get('dato2');
-            $condicion->valor = $request->get('valor');
-            $condicion->operacion = $request->get('operacion');
-            $condicion->estado = 1;
-            $condicion->es_porcentaje = ($request->get('esporcentaje') === null) ? 0 : 1;
-            $condicion->save();
-        }catch(Exception $e){
-            Log::error($e->getMessage());
-            return redirect()->back()->withErrors('Error en el guardado de la condición de recompensa');
-        }
-
-        return redirect()->back()->withSuccess('Se ha credo correctamente la condición de recompensa');
-    }
-
-    public function viewCondicionRecompensa($id){
-
-        $condicion = \App\Models\CondicionesRecompensas::find($id);
-
-        if(!$condicion){
-            return abort(404);
-        }
-
-        return view('dashboard/condicionrecompensa', [
-            'condicion' => $condicion
-        ]);
-    }
-
-    public function updateCondicionRecompensa(Request $request){
-
-        try{
-            $condicion = \App\Models\CondicionesRecompensas::find($request->get('id'));
-
-            if(!$condicion){
-                return redirect()->back()->withErrors('# Error en la actualización de la condición de recompensa');
-            }
-
-            $condicion->tipo_premio = $request->get('tipo');
-            $condicion->dato = $request->get('dato');
-            $condicion->condicion = $request->get('condicion');
-            $condicion->dato2 = $request->get('dato2');
-            $condicion->valor = $request->get('valor');
-            $condicion->operacion = $request->get('operacion');
-            $condicion->estado = 1;
-            $condicion->es_porcentaje = ($request->get('esporcentaje') === null) ? 0 : 1;
-            $condicion->save();
-        }catch(Exception $e){
-            Log::error($e->getMessage());
-            return redirect()->back()->withErrors('* Error en la actualización de la condición de recompensa');
-        }
-
-        return redirect()->back()->withSuccess('Se ha actualizado correctamente la condición de recompensa');
-    }
 
     public function aceptarValidacion(Request $request){
 

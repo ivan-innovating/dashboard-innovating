@@ -122,8 +122,6 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
         #dump($convocatorias);
         return response()->json($convocatorias, 200);
     })->name('getconvocatorias');
-   
-    
     Route::get('/admin/editarproyecto/id/{id}', [\App\Http\Controllers\DashboardProyectosController::class, 'editarProyecto'])->name('admineditarproyecto');
     Route::post('/admin/editproyecto', [\App\Http\Controllers\DashboardScrapperController::class, 'editProyecto'])->name('admineditproyecto');
     Route::get('/admin/viewdatoscordis', [\App\Http\Controllers\DashboardProyectosController::class, 'viewDatosCordis'])->name('adminviewdatoscordis');
@@ -153,5 +151,16 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::post('/admin/editcarpeta', [\App\Http\Controllers\DashboardPaginaAyudaController::class, 'editCarpeta'])->name('admineditcarpeta');
 
 
+    ### RUTAS GESTION STATS Y CONFIGURACION
     Route::get('admin/statsgenerales', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'statsGenerales'])->name('adminstatsgenerales');
+    Route::get('admin/configuration', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'config'])->name('adminconfiguration');
+    Route::post('admin/updateumbrales', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'updateUmbrales'])->name('adminupdateumbrales');
+    Route::get('admin/editarcnae/id/{id}', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'editarCnae'])->name('admineditarcnae');
+    Route::get('admin/editarscrapper/id/{id}', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'editarScrapper'])->name('admineditarscrapper');
+    Route::post('admin/editscrapper', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'editScrapper'])->name('admineditscrapper');
+    Route::post('admin/solucionaralarma', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'solucionaralarma'])->name('adminsolucionaralarma');
+    
+    Route::get('admin/editarcondicion/id/{id}', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'editarCondicion'])->name('admineditarcondicion');
+    Route::post('admin/crearcondicion', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'crearCondicion'])->name('admincreatecondicion');
+    Route::post('admin/editcondicion', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'editCondicion'])->name('admineditcondicion');
 });

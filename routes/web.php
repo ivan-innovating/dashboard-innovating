@@ -178,7 +178,7 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::post('/updateayudaanalisis', [\App\Http\Controllers\DashboardAyudaController::class, 'updateAyudaAnalisis'])->name('updateayudaanalisis');
     Route::post('/validateuser', [\App\Http\Controllers\UsersController::class, 'validateUser'])->name('validateuser');
 
-    Route::get('/editcnae/id/{id}', [\App\Http\Controllers\DashboardCnaeController::class, 'viewCnae'])->name('editcnae');
+    
     Route::get('/editinvestigador/id/{id}', [\App\Http\Controllers\UsersController::class, 'viewInvestigador'])->name('editinvestigador');
     Route::post('/saveinvestigador', [\App\Http\Controllers\UsersController::class, 'saveInvestigador'])->name('saveinvestigador');
     Route::post('/updateinvestigadores', [\App\Http\Controllers\UsersController::class, 'updateInvestigadores'])->name('updateinvestigadores');

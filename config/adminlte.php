@@ -564,7 +564,7 @@ return [
         ],
         [
             'text' => 'Configuración',
-            'url' => 'admin/settings',
+            'url' => 'admin/configuration',
             'icon' => 'fas fa-fw fa-gears',
         ],
         /*[
