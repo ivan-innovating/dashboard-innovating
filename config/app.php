@@ -53,6 +53,7 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
+    'innovatingurl' => env('APP_INNOVATING_URL', 'https://innovating.works'),
 
     /*
     |--------------------------------------------------------------------------

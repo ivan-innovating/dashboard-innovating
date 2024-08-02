@@ -14,52 +14,14 @@ class CondicionesFinancierasController extends Controller
 
         $condiciones = \App\Models\CondicionesFinancieras::all();
         $analisis = \App\Models\AnalisisFinancieros::all();
-        $convocatorias = \App\Models\Ayudas::all()->pluck('Titulo','id')->toArray();
-        
-        $colors = [
-            'danger' => 'Rojo',
-            'success' => 'Verde',
-            'orange' => 'Naranja',
-            'no' => 'No mostrar'
-        ];
-
-        $variables = [
-            'Gastos Anuales' => 'Gastos Anuales',
-            'Presupuesto del proyecto' => 'Presupuesto del proyecto',
-            'Fondos propios' => 'Fondos propios',
-            'Circulante' => 'Circulante',
-            'Beneficios reales' => 'Beneficios reales',
-            'Margen de endeudamiento' => 'Margen de endeudamiento',
-            'Gasto Medio I+D' => 'Gasto Medio I+D',
-            'Gasto Min I+D' => 'Gasto Mínimo I+D',
-            'Gasto Max I+D' => 'Gasto Máximo I+D',
-            'Trabajos inmovilizado' => 'Trabajos inmovilizado'
-        ];
-        $variables2 = [
-            'Fijo' => 'Fijo',
-            'Gastos Anuales' => 'Gastos Anuales',
-            'Presupuesto Total del proyecto' => 'Presupuesto Total del proyecto',
-            'Presupuesto Mínimo de la ayuda' => 'Presupuesto mínimo de la ayuda',
-            'Presupuesto Máximo de la ayuda' => 'Presupuesto Máximo de la ayuda',
-            'Gastos Anuales' => 'Gastos Anuales',
-            'Presupuesto del proyecto' => 'Presupuesto del proyecto',
-            'Fondos propios' => 'Fondos propios',
-            'Circulante' => 'Circulante',
-            'Beneficios reales' => 'Beneficios reales',
-            'Margen de endeudamiento' => 'Margen de endeudamiento'
-        ];
-
-        return view('dashboard/condicionesfinancieras', [
-            'colors' => $colors,
-            'convocatorias' => $convocatorias,
-            'variables' => $variables,
-            'variables2' => $variables2,
+       
+        return view('admin.condicionesfinancieras.condicionesfinancieras', [
             'condiciones' => $condiciones,
             'analisisfinancieros' => $analisis
         ]);
     }
 
-    public function crearCondicionFinanciera(Request $request){
+    public function saveCondicionFinanciera(Request $request){
 
         $checkcondicion = \App\Models\CondicionesFinancieras::where('var1', $request->get('var1'))->where('var2', $request->get('var2'))->where('condicion', $request->get('condicion'))->first();
 
@@ -92,7 +54,7 @@ class CondicionesFinancierasController extends Controller
 
     }
 
-    public function viewCondicionFinanciera($id, $return = null){
+    public function editarCondicionFinanciera($id){
 
         $condicion = \App\Models\CondicionesFinancieras::find($id);
 
@@ -134,13 +96,13 @@ class CondicionesFinancierasController extends Controller
 
         $convocatorias = \App\Models\Ayudas::all()->pluck('Titulo','id')->toArray();
 
-        return view('dashboard/editcondicion', [
+        return view('admin.condicionesfinancieras.editar', [
             'colors' => $colors,
             'condicion' => $condicion,
             'variables' => $variables,
             'variables2' => $variables2,
             'convocatorias' => $convocatorias,
-            'return' => $return
+            'return' => null
         ]);
 
     }
@@ -178,10 +140,10 @@ class CondicionesFinancierasController extends Controller
             return redirect()->back()->withErrors('Error al actualizar la condicion financiera');
         }
 
-        return redirect()->route('dashboardcondicionesfinancieras')->with('success', 'Condicion financiera actualizada');
+        return redirect()->back()->withSuccess('Condicion financiera actualizada');
     }
 
-    public function deleteCondicion(Request $request){
+    public function borrarCondicionFinanciera(Request $request){
 
         try{
             \App\Models\CondicionesFinancieras::find($request->get('id'))->delete();
@@ -191,6 +153,52 @@ class CondicionesFinancierasController extends Controller
         }
 
         return redirect()->back()->withSuccess('La condición se ha borrado de la base de datos.');
+    }
+
+    public function crearCondicionFinanciera(){
+
+        $convocatorias = \App\Models\Ayudas::all()->pluck('Titulo','id')->toArray();
+        
+        $colors = [
+            'danger' => 'Rojo',
+            'success' => 'Verde',
+            'orange' => 'Naranja',
+            'no' => 'No mostrar'
+        ];
+
+        $variables = [
+            'Gastos Anuales' => 'Gastos Anuales',
+            'Presupuesto del proyecto' => 'Presupuesto del proyecto',
+            'Fondos propios' => 'Fondos propios',
+            'Circulante' => 'Circulante',
+            'Beneficios reales' => 'Beneficios reales',
+            'Margen de endeudamiento' => 'Margen de endeudamiento',
+            'Gasto Medio I+D' => 'Gasto Medio I+D',
+            'Gasto Min I+D' => 'Gasto Mínimo I+D',
+            'Gasto Max I+D' => 'Gasto Máximo I+D',
+            'Trabajos inmovilizado' => 'Trabajos inmovilizado'
+        ];
+        $variables2 = [
+            'Fijo' => 'Fijo',
+            'Gastos Anuales' => 'Gastos Anuales',
+            'Presupuesto Total del proyecto' => 'Presupuesto Total del proyecto',
+            'Presupuesto Mínimo de la ayuda' => 'Presupuesto mínimo de la ayuda',
+            'Presupuesto Máximo de la ayuda' => 'Presupuesto Máximo de la ayuda',
+            'Gastos Anuales' => 'Gastos Anuales',
+            'Presupuesto del proyecto' => 'Presupuesto del proyecto',
+            'Fondos propios' => 'Fondos propios',
+            'Circulante' => 'Circulante',
+            'Beneficios reales' => 'Beneficios reales',
+            'Margen de endeudamiento' => 'Margen de endeudamiento'
+        ];
+
+
+        return view('admin.condicionesfinancieras.crear', [
+            'colors' => $colors,
+            'convocatorias' => $convocatorias,
+            'variables' => $variables,
+            'variables2' => $variables2,
+        ]);
     }
 
 }

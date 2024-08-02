@@ -164,7 +164,6 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::post('admin/crearcondicion', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'crearCondicion'])->name('admincreatecondicion');
     Route::post('admin/editcondicion', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'editCondicion'])->name('admineditcondicion');
 
-
     ### RUTAS ENVIO EMAIL A USUARIOS COMO SUPER ADMIN
     Route::get('admin/enviaremailusuarios', [\App\Http\Controllers\EnvioMailUsuariosController::class, 'enviarEmailsUsuarios'])->name('adminenviaremailusuarios');
     Route::post('admin/crearemailusuarios', [\App\Http\Controllers\EnvioMailUsuariosController::class, 'crearEmailsUsuarios'])->name('admincrearemailusuarios');
@@ -173,4 +172,13 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::post('admin/editmail', [\App\Http\Controllers\EnvioMailUsuariosController::class, 'editMail'])->name('admineditmail');
     Route::get('admin/getusuariosentidad', [\App\Http\Controllers\EnvioMailUsuariosController::class, 'getUsuariosEntidad'])->name('admingetusuariosentidad');
     Route::post('admin/sendtestmail', [\App\Http\Controllers\EnvioMailUsuariosController::class, 'enviarMailPrueba'])->name('adminsendtestmail');
+
+    ### RUTAS CONDICIONES FINANCIERAS
+    Route::get('admin/condicionesfinancieras', [\App\Http\Controllers\CondicionesFinancierasController::class, 'condicionesFinancieras'])->name('admincondicionesfinancieras');
+    Route::get('admin/crearcondicionfinanciera', [\App\Http\Controllers\CondicionesFinancierasController::class, 'crearCondicionFinanciera'])->name('admincrearcondicionfinanciera');
+    Route::post('admin/savecondicionfinanciera', [\App\Http\Controllers\CondicionesFinancierasController::class, 'saveCondicionFinanciera'])->name('adminsavecondicionfinanciera');
+    Route::get('admin/editarcondicionfinanciera/id/{id}', [\App\Http\Controllers\CondicionesFinancierasController::class, 'editarCondicionFinanciera'])->name('admineditarcondicionfinanciera');
+    Route::post('admin/editcondicionfinanciera', [\App\Http\Controllers\CondicionesFinancierasController::class, 'editCondicionFinanciera'])->name('admineditcondicionfinanciera');
+    Route::post('admin/borrarcondicionfinanciera', [\App\Http\Controllers\CondicionesFinancierasController::class, 'borrarCondicionFinanciera'])->name('adminborrarcondicionfinanciera');
+    
 });
