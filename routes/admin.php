@@ -150,7 +150,6 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::post('/admin/editpagina', [\App\Http\Controllers\DashboardPaginaAyudaController::class, 'editPagina'])->name('admineditpagina');
     Route::post('/admin/editcarpeta', [\App\Http\Controllers\DashboardPaginaAyudaController::class, 'editCarpeta'])->name('admineditcarpeta');
 
-
     ### RUTAS GESTION STATS Y CONFIGURACION
     Route::get('admin/statsgenerales', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'statsGenerales'])->name('adminstatsgenerales');
     Route::get('admin/configuration', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'config'])->name('adminconfiguration');
@@ -160,7 +159,18 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::post('admin/editscrapper', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'editScrapper'])->name('admineditscrapper');
     Route::post('admin/solucionaralarma', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'solucionaralarma'])->name('adminsolucionaralarma');
     
+    ### RUTAS CONDICIONES PREMIOS Y RECOMPENSAS
     Route::get('admin/editarcondicion/id/{id}', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'editarCondicion'])->name('admineditarcondicion');
     Route::post('admin/crearcondicion', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'crearCondicion'])->name('admincreatecondicion');
     Route::post('admin/editcondicion', [\App\Http\Controllers\DashboardStatsGeneralesController::class, 'editCondicion'])->name('admineditcondicion');
+
+
+    ### RUTAS ENVIO EMAIL A USUARIOS COMO SUPER ADMIN
+    Route::get('admin/enviaremailusuarios', [\App\Http\Controllers\EnvioMailUsuariosController::class, 'enviarEmailsUsuarios'])->name('adminenviaremailusuarios');
+    Route::post('admin/crearemailusuarios', [\App\Http\Controllers\EnvioMailUsuariosController::class, 'crearEmailsUsuarios'])->name('admincrearemailusuarios');
+    Route::get('admin/delete-mail/id/{id}', [\App\Http\Controllers\EnvioMailUsuariosController::class, 'deleteMail'])->name('admindeletemail');
+    Route::get('admin/editaremail/id/{id}', [\App\Http\Controllers\EnvioMailUsuariosController::class, 'editarMail'])->name('admineditaremail');
+    Route::post('admin/editmail', [\App\Http\Controllers\EnvioMailUsuariosController::class, 'editMail'])->name('admineditmail');
+    Route::get('admin/getusuariosentidad', [\App\Http\Controllers\EnvioMailUsuariosController::class, 'getUsuariosEntidad'])->name('admingetusuariosentidad');
+    Route::post('admin/sendtestmail', [\App\Http\Controllers\EnvioMailUsuariosController::class, 'enviarMailPrueba'])->name('adminsendtestmail');
 });

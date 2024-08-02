@@ -549,14 +549,19 @@ return [
         ],
         [
             'text' => 'Gestión condiciones financieras',
-            'url' => 'admin/settings',
+            'url' => 'admin/condicionesfinancieras',
             'icon' => 'fas fa-fw fa-list-check',
         ],     
         [
             'text' => 'Enviar datos Beagle',
-            'url' => 'admin/settings',
+            'url' => 'admin/enviardatosbeagle',
             'icon' => 'fas fa-fw fa-shield-dog',
         ],
+        [
+            'text' => 'Enviar e-mail usuarios',
+            'url' => 'admin/enviaremailusuarios',
+            'icon' => 'fas fa-fw fa-paper-plane',
+        ],     
         [
             'text' => 'Estadísticas generales',
             'url' => 'admin/statsgenerales',
