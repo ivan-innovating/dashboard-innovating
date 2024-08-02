@@ -181,4 +181,7 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     Route::post('admin/editcondicionfinanciera', [\App\Http\Controllers\CondicionesFinancierasController::class, 'editCondicionFinanciera'])->name('admineditcondicionfinanciera');
     Route::post('admin/borrarcondicionfinanciera', [\App\Http\Controllers\CondicionesFinancierasController::class, 'borrarCondicionFinanciera'])->name('adminborrarcondicionfinanciera');
     
+    ###RUTAS ENVIAR DATOS A BEAGLE
+    Route::get('admin/datosbeagle', [\App\Http\Controllers\EnviarDatosBeagleController::class, 'datosBeagle'])->name('admindatosbeagle');
+    Route::post('admin/superadminsearch', [\App\Http\Controllers\EnviarDatosBeagleController::class, 'superAdminSearch'])->name('adminsuperadminsearch');
 });

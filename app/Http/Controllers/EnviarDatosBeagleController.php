@@ -14,11 +14,206 @@ class EnviarDatosBeagleController extends Controller
     //
     const AMOUNT = 40000;
 
-    public function index(){
+    public function datosBeagle(Request $request){
 
-        return view('beagle.index',[                     
+        $empresas = collect(null);
+        $empresasactualizadas = collect(null);
+        $proyectos = collect(null);
+
+        ###DATOS PARA FILTROS DE EMPRESAS
+        $ccaas = getAllCcaas();
+        $categories = getAllCategories();
+        $paises = \App\Models\Paises::where('mostrar', 1)->orderBy('Nombre_es')->get();
+
+        ###DATOS PARA FILTROS DE PROYECTOS
+        $ayudasProyectos = \App\Models\Proyectos::whereNotNull('idAyudaAcronimo')->select('idAyudaAcronimo')->groupBy('idAyudaAcronimo')->get();
+        $ayudasSelect = collect(null);
+
+        foreach($ayudasProyectos as $idayuda){
+            $ayudaproyecto = \App\Models\Ayudas::where('IdConvocatoriaStr', $idayuda->idAyudaAcronimo)->first();
+            if($ayudaproyecto){
+                $ayudasSelect = $ayudasSelect->push($ayudaproyecto);
+            }
+        }
+
+        $ayudasSelect = $ayudasSelect->unique();
+        $ayudasSelect = $ayudasSelect->sortBy('Acronimo');
+
+        $organismosProyectos = \App\Models\Proyectos::select(['organismo','IdAyuda'])->groupBy('organismo','IdAyuda')->get();
+        $organismos = collect(null);
+   
+        foreach($organismosProyectos as $idorganismo){
+
+            if($idorganismo->organismo !== null && $idorganismo->IdAyuda === null){
+                $org = \App\Models\Organos::find($idorganismo->organismo);
+                if(!$org){
+                    $org = \App\Models\Departamentos::find($idorganismo->organismo);
+                }
+                if($org){
+                    $organismos = $organismos->push($org);
+                }
+            }elseif($idorganismo->organismo === null && $idorganismo->IdAyuda !== null){
+                $ayuda = \App\Models\Ayudas::find($idorganismo->IdAyuda);
+                if($ayuda){
+                    if($ayuda->organo){
+                        $organismos = $organismos->push($ayuda->organo);
+                    }elseif($ayuda->departamento){
+                        $organismos = $organismos->push($ayuda->departamento);
+                    }
+                }
+            }elseif($idorganismo->organismo !== null && $idorganismo->IdAyuda !== null){
+                $org = \App\Models\Organos::find($idorganismo->organismo);
+                if(!$org){
+                    $org = \App\Models\Departamentos::find($idorganismo->organismo);
+                }
+                if($org){
+                    $organismos = $organismos->push($org);
+                }
+            }
+        }
+
+        $organismos = $organismos->unique();
+        $organismos = $organismos->sortBy('Nombre');
+
+        return view('admin.beagle.beagle',[              
+            'categories' => $categories,
+            'ccaas' => $ccaas,                
+            'paises' => $paises,
+            'ayudasselect' => $ayudasSelect,
+            'organismos' => $organismos,
+            'empresasactualizadas' => $empresasactualizadas,
+            'empresas' => $empresas,
+            'proyectos' => $proyectos,
+                      
         ]);
 
+    }
+
+    public function superAdminSearch(Request $request){
+
+        $empresas = collect(null);
+        $totalempresas = 0;
+        $proyectos = collect(null);
+        $totalproyectos = 0;
+
+        if($request->get('filter') !== null){   
+            if($request->get('filter') == "empresas"){
+                if($request->get('filtrolastupdate') !== null && $request->get('filtrolastupdate') == 1){
+                    $empresas = getElasticCompaniesAggregated("", $request, 1, "empresas", 10);
+                    if($empresas == 'ups'){
+                        $empresas = collect(null);
+                    }
+                }else{
+                    $empresas = getElasticCompanies("", $request, 1, "empresas");
+                    if($empresas == 'ups'){
+                        $empresas = collect(null);
+                    }
+                }
+              
+                $totalempresas = (isset($empresas->pagination)) ? $empresas->pagination->totalItems : 0;
+            }
+            if($request->get('filter') == "proyectos"){
+
+                $proyectos = getElasticProyectos("cdti", $request, 1, "proyectos", 10);
+
+                dump($proyectos);
+                if($proyectos == 'ups'){
+                    $proyectos = collect(null);
+                }
+                #dd($proyectos);
+                $ids = array();
+    
+                if(isset($proyectos->data)){
+                    foreach($proyectos->data as $key => $proyecto){
+                        if(isset($proyectos->pagination) && $proyectos->pagination->totalItems > 0 && $proyectos->pagination->totalItems < 2000){
+                            array_push($ids,$proyecto->ID);
+                        } 
+        
+                        $proyecto->Proyecto_id = $proyecto->ID;
+                        $proyecto->uri = $proyecto->UrlProyecto;
+                        $proyecto->proyecto_acronimo = $proyecto->Acronimo;
+                        $proyecto->proyecto_titulo = $proyecto->Titulo;
+                        $proyecto->Tipo = 'publico';
+                        if($proyecto->Acronimo){
+                            $proyecto->AyudaAcronimo = $proyecto->Acronimo;
+                        }else{
+                            $proyecto->AyudaAcronimo = $proyecto->Titulo;
+                        }
+                    }
+                }
+
+                $totalproyectos = (isset($proyectos->pagination)) ? $proyectos->pagination->totalItems : 0;
+            }
+            
+        }
+
+        ###DATOS PARA FILTROS DE EMPRESAS
+        $ccaas = getAllCcaas();
+        $categories = getAllCategories();
+        $paises = \App\Models\Paises::where('mostrar', 1)->orderBy('Nombre_es')->get();
+
+        ###DATOS PARA FILTROS DE PROYECTOS
+        $ayudasProyectos = \App\Models\Proyectos::whereNotNull('idAyudaAcronimo')->select('idAyudaAcronimo')->groupBy('idAyudaAcronimo')->get();
+        $ayudasSelect = collect(null);
+
+        foreach($ayudasProyectos as $idayuda){
+            $ayudaproyecto = \App\Models\Ayudas::where('IdConvocatoriaStr', $idayuda->idAyudaAcronimo)->first();
+            if($ayudaproyecto){
+                $ayudasSelect = $ayudasSelect->push($ayudaproyecto);
+            }
+        }
+
+        $ayudasSelect = $ayudasSelect->unique();
+        $ayudasSelect = $ayudasSelect->sortBy('Acronimo');
+
+        $organismosProyectos = \App\Models\Proyectos::select(['organismo','IdAyuda'])->groupBy('organismo','IdAyuda')->get();
+        $organismos = collect(null);
+   
+        foreach($organismosProyectos as $idorganismo){
+
+            if($idorganismo->organismo !== null && $idorganismo->IdAyuda === null){
+                $org = \App\Models\Organos::find($idorganismo->organismo);
+                if(!$org){
+                    $org = \App\Models\Departamentos::find($idorganismo->organismo);
+                }
+                if($org){
+                    $organismos = $organismos->push($org);
+                }
+            }elseif($idorganismo->organismo === null && $idorganismo->IdAyuda !== null){
+                $ayuda = \App\Models\Ayudas::find($idorganismo->IdAyuda);
+                if($ayuda){
+                    if($ayuda->organo){
+                        $organismos = $organismos->push($ayuda->organo);
+                    }elseif($ayuda->departamento){
+                        $organismos = $organismos->push($ayuda->departamento);
+                    }
+                }
+            }elseif($idorganismo->organismo !== null && $idorganismo->IdAyuda !== null){
+                $org = \App\Models\Organos::find($idorganismo->organismo);
+                if(!$org){
+                    $org = \App\Models\Departamentos::find($idorganismo->organismo);
+                }
+                if($org){
+                    $organismos = $organismos->push($org);
+                }
+            }
+        }
+
+        $organismos = $organismos->unique();
+        $organismos = $organismos->sortBy('Nombre');
+
+        return view('admin.beagle.beagle',[              
+            'categories' => $categories,
+            'ccaas' => $ccaas,                
+            'paises' => $paises,
+            'ayudasselect' => $ayudasSelect,
+            'organismos' => $organismos,
+            'empresas' => $empresas,
+            'totalempresas' => $totalempresas,
+            'proyectos' => $proyectos,
+            'totalproyectos' => $totalproyectos
+                      
+        ]);
     }
 
     public function getConcessions(Request $request){

@@ -554,7 +554,7 @@ return [
         ],     
         [
             'text' => 'Enviar datos Beagle',
-            'url' => 'admin/enviardatosbeagle',
+            'url' => 'admin/datosbeagle',
             'icon' => 'fas fa-fw fa-shield-dog',
         ],
         [
