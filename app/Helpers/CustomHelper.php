@@ -1658,31 +1658,34 @@ const SCOREPRESUPUESTO = 200000;
         ]);
 
         $data = array();
+        $userSearch = array();
 
-        $search = str_replace("&","",$search);
+        if(!empty($search)){
 
-        $search = mb_convert_encoding($search, 'UTF-8', 'UTF-8');
+            $search = str_replace("&","",$search);
+            $search = mb_convert_encoding($search, 'UTF-8', 'UTF-8');
 
-        if (preg_match_all('/"([^"]+)"/', $search, $filter)) {
+            if(preg_match_all('/"([^"]+)"/', $search, $filter)) {
 
-            foreach($filter as $m){
-                if(!in_array($m, $data)){
-                    $data = preg_replace("/[^a-zA-Z0-9À-ÿ\-\s.+]/", "", $m);
+                foreach($filter as $m){
+                    if(!in_array($m, $data)){
+                        $data = preg_replace("/[^a-zA-Z0-9À-ÿ\-\s.+]/", "", $m);
+                    }
+
+                    $arraysearch = explode(" ", preg_replace("/[^a-zA-Z0-9À-ÿ\-\s.+]/", "", str_replace($m, "", $search)));
+                    foreach(array_filter($arraysearch) as $string){
+                        $data[] = $string;
+                    }
                 }
 
-                $arraysearch = explode(" ", preg_replace("/[^a-zA-Z0-9À-ÿ\-\s.+]/", "", str_replace($m, "", $search)));
-                foreach(array_filter($arraysearch) as $string){
-                    $data[] = $string;
-                }
+            }else{
+                $userSearch = explode(" ", preg_replace("/[^a-zA-Z0-9À-ÿ\-\s.+]/", "", $search));
             }
 
-        }else{
-            $userSearch = explode(" ", preg_replace("/[^a-zA-Z0-9À-ÿ\-\s.+]/", "", $search));
-        }
-
-        if(!empty($data)){
-            foreach($data as $text){
-                $userSearch[] = $text;
+            if(!empty($data)){
+                foreach($data as $text){
+                    $userSearch[] = $text;
+                }
             }
         }
 
@@ -1691,7 +1694,10 @@ const SCOREPRESUPUESTO = 200000;
             "params" => [
                 "textSearch" => $userSearch,
                 "Estado" => ($request->get('estado')) ? $request->get('estado') : "",
-                "IDOrganismo" => ($request->get('organismo')) ? $request->get('organismo') : ""
+                "IDOrganismo" => ($request->get('organismo')) ? $request->get('organismo') : "",
+                "idAyuda" => ($request->get('linea')) ? $request->get('linea') : "",
+                "minBudget" => ($request->get('presupuestomin')) ? (float)$request->get('presupuestomin') : 0,
+                "maxBudget" => ($request->get('presupuestomax')) ? (float)$request->get('presupuestomax') : 0,
             ]
         );
 

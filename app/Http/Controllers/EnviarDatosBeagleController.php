@@ -115,9 +115,8 @@ class EnviarDatosBeagleController extends Controller
             }
             if($request->get('filter') == "proyectos"){
 
-                $proyectos = getElasticProyectos("cdti", $request, 1, "proyectos", 10);
+                $proyectos = getElasticProyectos("", $request, 1, "proyectos", 10);
 
-                dump($proyectos);
                 if($proyectos == 'ups'){
                     $proyectos = collect(null);
                 }
