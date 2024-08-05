@@ -10,7 +10,8 @@
 <div class="card">
 	<div class="card-header">
         <ul class="nav nav-pills" id="myTab">
-            <li class="nav-item"><a class="nav-link @if(isset($totalempresas) && $totalempresas > 0) active @endif" href="#empresas" data-toggle="tab">Enviar empresas Beagle</a></li>
+            <li class="nav-item"><a class="nav-link @if(isset($totalempresas) && $totalempresas > 0) active @elseif(!isset($totalempresas) && !isset($totalproyectos)) active @endif "
+             href="#empresas" data-toggle="tab">Enviar empresas Beagle</a></li>
             <li class="nav-item"><a class="nav-link @if(isset($totalproyectos) && $totalproyectos > 0) active @endif" href="#proyectos" data-toggle="tab">Enviar proyectos Beagle</a></li>
         </ul>
 		<div class="card-tools">
@@ -37,7 +38,7 @@
         @endif
         <div class="tab-content">
             <!-- /.tab-pane -->
-            <div class="tab-pane @if(isset($totalempresas) && $totalempresas > 0) active @endif" id="empresas">
+            <div class="tab-pane @if(isset($totalempresas) && $totalempresas > 0) active @elseif(!isset($totalempresas) && !isset($totalproyectos)) active @endif" id="empresas">
                 <form method="post" action="{{route('adminsuperadminsearch')}}">
                     @csrf
                     <input type="hidden" name="filter" value="empresas"/>
@@ -206,7 +207,7 @@
                         <button type="button" class="btn btn-warning" disabled>Mandar datos a Beagle</button>
                         <small class="text text-warning">* no se pueden mandar más de 2000 líneas de datos de una sola vez a beagle, prueba a añadir más filtros</small>
                     @else
-                        <button type="button" class="btn btn-warning">Mandar datos a Beagle</button>
+                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#procesoventaModal">Mandar datos a Beagle</button>
                     @endif            
                     @foreach($empresas->data as $empresa)
                         @if($empresa->LinkInterno == "" || !isset($empresa->LinkInterno) || str_starts_with($empresa->ID, 'XS') || str_starts_with($empresa->ID, 'XA'))
@@ -389,7 +390,7 @@
                         <button type="button" class="btn btn-warning" disabled>Mandar datos a Beagle</button>
                         <small class="text text-warning">* no se pueden mandar más de 2000 líneas de datos de una sola vez a beagle, prueba a añadir más filtros</small>
                     @else
-                        <button type="button" class="btn btn-warning">Mandar datos a Beagle</button>
+                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#procesoventaProyectosModal">Mandar datos a Beagle</button>
                     @endif
                     @foreach($proyectos->data as $proyecto)
                         <div class="flex justify-start duration-350 mb-3 ease-in-out @if(!$loop->last) border-b @endif">  
@@ -446,6 +447,241 @@
 	<div class="card-footer">
 		
 	</div>
+    @if(request()->get('filter') == "empresas" && isset($totalempresas) && $totalempresas > 0 && $totalempresas < 2000) 
+        <div class="modal fade" id="procesoventaModal" tabindex="-1" role="dialog" aria-labelledby="procesoventaModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="procesoventaModalLabel">{{__('Generar proceso de venta')}}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="{{route('adminmandardatosbeagle')}}" class="mandarabeagle" method="post">
+                        @csrf
+                        <div class="alert alert-warning">
+                            <b>{{ __('Este es un proceso costoso a nivel sistema y procesamiento, ten en cuenta que puede tardar varios minutos en ejecutarse')}}</b>
+                        </div>
+                        <div class="modal-body">                    
+                            @if(is_array(request()->get('comunidad')))
+                            <input type="hidden" name="comunidad" value="{{implode(',', request()->get('comunidad'))}}">
+                            @else
+                            <input type="hidden" name="comunidad" value="{{request()->get('comunidad')}}">
+                            @endif
+                            @if(is_array(request()->get('categoria')))
+                            <input type="hidden" name="categoria" value="{{implode(',', request()->get('categoria'))}}">
+                            @else
+                            <input type="hidden" name="categoria" value="{{request()->get('categoria')}}">
+                            @endif
+                            <input type="hidden" name="trlmax" value="{{request()->get('trlmax')}}">
+                            <input type="hidden" name="patentes" value="{{request()->get('patentes')}}">
+                            <input type="hidden" name="ayudas" value="{{request()->get('ayudas')}}">
+                            <input type="hidden" name="ultimaayuda" value="{{request()->get('ultimaayuda')}}">
+                            <input type="hidden" name="sellopyme" value="{{request()->get('sellopyme')}}">
+                            @if(is_array(request()->get('cooperacion')))
+                            <input type="hidden" name="cooperacion" value="{{implode(',', request()->get('cooperacion'))}}">
+                            @else
+                            <input type="hidden" name="cooperacion" value="{{request()->get('cooperacion')}}">
+                            @endif
+                            <input type="hidden" name="lider" value="{{request()->get('lider')}}">
+                            <input type="hidden" name="empleados" value="{{request()->get('empleados')}}">
+                            <input type="hidden" name="codigocnae" value="{{request()->get('codigocnae')}}">
+                            <input type="hidden" name="descripcioncnae" value="{{request()->get('descripcioncnae')}}">
+                            <input type="hidden" name="fecha" value="{{request()->get('fecha')}}">
+                            <input type="hidden" name="soloclientes" value="{{request()->get('soloclientes')}}">
+                            <input type="hidden" name="patrimonionetomin" value="{{request()->get('patrimonionetomin')}}">
+                            <input type="hidden" name="patrimonionetomax" value="{{request()->get('patrimonionetomax')}}">
+                            <input type="hidden" name="activocorrientemin" value="{{request()->get('activocorrientemin')}}">
+                            <input type="hidden" name="activocorrientemax" value="{{request()->get('activocorrientemax')}}">
+                            <input type="hidden" name="activofijomin" value="{{request()->get('activofijomin')}}">
+                            <input type="hidden" name="activofijomax" value="{{request()->get('activofijomax')}}">
+                            <input type="hidden" name="beneficioanualmin" value="{{request()->get('beneficioanualmin')}}">
+                            <input type="hidden" name="beneficioanualmax" value="{{request()->get('beneficioanualmax')}}">
+                            <input type="hidden" name="circulantemin" value="{{request()->get('circulantemin')}}">
+                            <input type="hidden" name="circulantemax" value="{{request()->get('circulantemax')}}">
+                            <input type="hidden" name="gastoanualmin" value="{{request()->get('gastoanualmin')}}">
+                            <input type="hidden" name="gastoanualmax" value="{{request()->get('gastoanualmax')}}">
+                            <input type="hidden" name="ingresosmin" value="{{request()->get('ingresosmin')}}">
+                            <input type="hidden" name="ingresosmax" value="{{request()->get('ingresosmax')}}">
+                            <input type="hidden" name="margenendeudamientomin" value="{{request()->get('margenendeudamientomin')}}">
+                            <input type="hidden" name="margenendeudamientomax" value="{{request()->get('margenendeudamientomax')}}">
+                            <input type="hidden" name="pasivocorrientemin" value="{{request()->get('pasivocorrientemin')}}">
+                            <input type="hidden" name="pasivocorrientemax" value="{{request()->get('pasivocorrientemax')}}">
+                            <input type="hidden" name="pasivocorrientemin" value="{{request()->get('pasivocorrientemin')}}">
+                            <input type="hidden" name="pasivonocorrientemin" value="{{request()->get('pasivonocorrientemin')}}">
+                            <input type="hidden" name="pasivonocorrientemax" value="{{request()->get('pasivonocorrientemax')}}">
+                            <input type="hidden" name="trabajosinmovilizadosmin" value="{{request()->get('trabajosinmovilizadosmin')}}">
+                            <input type="hidden" name="trabajosinmovilizadosmax" value="{{request()->get('trabajosinmovilizadosmax')}}">
+                            <input type="hidden" name="gastoidmin" value="{{request()->get('gastoidmin')}}">
+                            <input type="hidden" name="gastoidmax" value="{{request()->get('gastoidmax')}}">
+                            <input type="hidden" name="isfilter" value="1">
+                            <input type="hidden" name="isfilterfinanciero" value="{{request()->get('isfilterfinanciero')}}">
+                            <div class="form-group">
+                                <span class="text-danger">*</span> <label for="titulo">{{ __('Título proceso de venta') }}</label>
+                                <input type="text" name="titulo" id="titulo" class="form-control" required maxlength="300">
+                                <small>* máximo 300 caracteres</small>
+                            </div>
+                            <div class="form-group">
+                                <span class="text-danger">*</span> <label for="mensaje">{{ __('Explicación targetización de empresa') }}</label>
+                                <textarea name="mensaje" id="mensaje" rows="5" class="form-control" required="required" maxlength="1000"></textarea>
+                                <small>* máximo 1000 caracteres</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="ayuda">{{ __('Selecciona ayuda de innovating.works') }}</label><br/>
+                                <select name="ayuda" class="form-control select2" title="{{__('Ayudas')}}" style="width: 100%;">
+                                    @foreach($selectayudas as $option)
+                                        @if($option->organo !== null)
+                                        <option value="{{$option->id}}">
+                                            @if($option->Acronimo) {{$option->Acronimo}}: @endif {{ \Illuminate\Support\Str::limit($option->Titulo, 40, '...')}}
+                                        </option>
+                                        @elseif($option->departamento !== null)
+                                        <option value="{{$option->id}}">
+                                            @if($option->Acronimo) {{$option->Acronimo}}: @endif {{ \Illuminate\Support\Str::limit($option->Titulo, 40, '...')}}
+                                        </option>
+                                        @else
+                                        <option value="{{$option->id}}">
+                                            @if($option->Acronimo) {{$option->Acronimo}}: @endif {{ \Illuminate\Support\Str::limit($option->Titulo, 40, '...')}}
+                                        </option>
+                                        @endif
+                                    @endforeach
+                                </select>                            
+                            </div>
+                            <div class="form-group">
+                                <label for="link">{{ __('Link innovating.works') }}</label>
+                                <input type="url" name="link" id="link" class="form-control" maxlength="300">
+                                <small>* máximo 300 caracteres</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="speech">{{ __('Speech proceso de televenta') }}</label>
+                                <textarea name="speech" id="speech" rows="5" class="form-control" maxlength="5000"></textarea>
+                                <small>* máximo 5000 caracteres</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="prioridad">{{ __('Prioridad') }}</label><br/>
+                                <select class="select2 form-control-sm pl-0 ml-0"  style="width: 100%;" name="prioridad" title="Prioridad">
+                                    <option value="Alta">Alta</option>
+                                    <option value="Media">Media</option>
+                                    <option value="Baja">Baja</option>
+                                </select>
+                                <small>* por defecto si no se selecciona prioridad se mandará con prioridad "Baja"</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="fechamax">{{ __('Fecha máxima') }}</label>
+                                <div class="input-group date" id="fechamax" data-target-input="nearest">
+                                    <input type="text" name="fechamax" class="form-control-xs datetimepicker-input" data-target="#fechamax"  aria-describedby="fechahelp" placeholder="Fecha máxima" onkeydown="return false"/>
+                                    <div class="input-group-append" data-target="#fechamax" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                    </div>
+                                    <div class="input-group-append">
+                                        <div class="input-group-text"><button type="button" class="btn btn-link btn-xs text-muted clearbutton" data-item="fechamax"><i class="fa fa-times"></i></button></div>
+                                    </div>
+                                </div>
+                                <small>* por defecto si no se selecciona fecha se mandará la fecha de hoy más 7 días</small>
+                            </div>     
+                        </div>
+                        <div class="modal-footer">
+                            <span class="ajaxloader" style="display:none"><img src="{{asset('img/ajax-loader.gif')}}" width="30" height="30" /></span>
+                            <button type="submit" class="btn btn-outline-warning btn-sm">Enviar a Beagle</button>
+                            <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">{{__('Cerrar')}}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
+    @if(request()->get('filter') == "proyectos" && isset($totalproyectos) && $totalproyectos > 0 && $totalproyectos < 2000) 
+        <div class="modal fade" id="procesoventaProyectosModal" tabindex="-1" role="dialog" aria-labelledby="procesoventaProyectosModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="procesoventaProyectosModalLabel">{{__('Generar proceso de venta proyectos')}}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="{{route('adminmandardatosbeagle')}}" class="mandarabeagle" method="post">
+                        @csrf
+                        <input type="hidden" name="esproyectos" value="1">
+                        <input type="hidden" name="organismo" value="{{request()->get('organismo')}}">
+                        <input type="hidden" name="linea" value="{{request()->get('linea')}}">
+                        <input type="hidden" name="estado" value="{{request()->get('estado')}}">
+                        <input type="hidden" name="presupuestomin" value="{{request()->get('presupuestomin')}}">
+                        <input type="hidden" name="presupuestomax" value="{{request()->get('presupuestomax')}}">
+                        <div class="alert alert-warning">
+                            <b>{{ __('Este es un proceso costoso a nivel sistema y procesamiento, ten en cuenta que puede tardar varios minutos en ejecutarse')}}</b>
+                        </div>
+                        <div class="modal-body">                           
+                            <div class="form-group">
+                                <span class="text-danger">*</span> <label for="titulo">{{ __('Título proceso de venta') }}</label>
+                                <input type="text" name="titulo" id="titulo" class="form-control" required maxlength="300"/>
+                                <small>* máximo 300 caracteres</small>
+                            </div>
+                            <div class="form-group">
+                                <span class="text-danger">*</span> <label for="mensaje">{{ __('Explicación targetización de empresa') }}</label>
+                                <textarea name="mensaje" id="mensaje" rows="5" class="form-control" required maxlength="1000"></textarea>
+                                <small>* máximo 1000 caracteres</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="ayuda">{{ __('Selecciona ayuda de innovating.works') }}</label><br/>
+                                <select name="ayuda" class="form-control select2" title="{{__('Ayudas')}}" style="width: 100%;" @if(request()->get('linea') !== null) disabled @endif>
+                                    @php
+                                        $url = null;
+                                    @endphp
+                                    @if($ayudasselect !== null)
+                                        @foreach($ayudasselect as $item)
+                                            @if(request()->get('linea') !== null && request()->get('linea') == $item->id)
+                                                <option value="{{$item->id}}" selected>
+                                            @else
+                                                <option value="{{$item->id}}">
+                                            @endif
+                                            @if($item->Acronimo) {{$item->Acronimo}}: @endif {{ \Illuminate\Support\Str::limit($item->Titulo, 40, '...')}}
+                                                </option>
+                                        @endforeach
+                                    @endif
+                                </select>                            
+                            </div>
+                            <div class="form-group">
+                                <label for="link">{{__('Link innovating.works') }}</label>                                
+                                <input type="url" name="link" id="link" class="form-control" maxlength="300"/>                                
+                                <small>* máximo 300 caracteres</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="speech">{{ __('Speech proceso de televenta') }}</label>
+                                <textarea name="speech" id="speech" rows="5" class="form-control" maxlength="5000"></textarea>
+                                <small>* máximo 5000 caracteres</small>
+                            </div>
+                            <div class="form-group mt-4">
+                                <label for="prioridad">{{ __('Prioridad') }}</label><br/>
+                                <select class="select2 form-control-sm pl-0 ml-0"  style="width: 100%;" name="prioridad" title="Prioridad">
+                                    <option value="Alta">Alta</option>
+                                    <option value="Media">Media</option>
+                                    <option value="Baja">Baja</option>
+                                </select>
+                                <small>* por defecto si no se selecciona prioridad se mandará con prioridad "Baja"</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="fechamax">{{ __('Fecha máxima') }}</label>
+                                <div class="input-group date" id="fechamax" data-target-input="nearest">
+                                    <input type="text" name="fechamax" class="form-control-xs datetimepicker-input" data-target="#fechamax"  aria-describedby="fechahelp" placeholder="Fecha máxima" onkeydown="return false"/>
+                                    <div class="input-group-append" data-target="#fechamax" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                    </div>
+                                    <div class="input-group-append">
+                                        <div class="input-group-text"><button type="button" class="btn btn-link btn-xs text-muted clearbutton" data-item="fechamax"><i class="fa fa-times"></i></button></div>
+                                    </div>
+                                </div>
+                                <small>* por defecto si no se selecciona fecha se mandará la fecha de hoy más 7 días</small>
+                            </div>                     
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-outline-warning btn-sm">Enviar a Beagle</button>
+                            <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">{{__('Cerrar')}}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
 @stop
 
 @section('css')
@@ -486,6 +722,18 @@
             format: 'DD/MM/YYYY',
             viewMode: 'days',
             minDate: new Date(),
+        });
+        $("#fechamax").datetimepicker({
+            format: 'DD/MM/YYYY',
+            viewMode: 'days',
+            minDate: new Date(),
+        });
+        $('form').on('submit', function(){
+            var $preloader = $('.preloader');
+            $preloader.css('height', '100%');
+            setTimeout(function () {
+                $preloader.children().show();
+            });
         });
     </Script>
 @stop   

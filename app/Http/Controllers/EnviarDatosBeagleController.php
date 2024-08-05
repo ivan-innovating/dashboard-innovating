@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use stdClass;
 
@@ -202,6 +203,8 @@ class EnviarDatosBeagleController extends Controller
         $organismos = $organismos->unique();
         $organismos = $organismos->sortBy('Nombre');
 
+        $selectayudas = \App\Models\Ayudas::whereIn('Estado', ['Abierta','Próximamente'])->where('Publicada', 1)->get();
+        
         return view('admin.beagle.beagle',[              
             'categories' => $categories,
             'ccaas' => $ccaas,                
@@ -211,7 +214,8 @@ class EnviarDatosBeagleController extends Controller
             'empresas' => $empresas,
             'totalempresas' => $totalempresas,
             'proyectos' => $proyectos,
-            'totalproyectos' => $totalproyectos
+            'totalproyectos' => $totalproyectos,
+            'selectayudas' => $selectayudas
                       
         ]);
     }
@@ -360,6 +364,229 @@ class EnviarDatosBeagleController extends Controller
 
         return redirect()->back()->withSuccess('Enviados cifs desde concesiones de un total de '.$i.' departamentos/organos a beagle');
 
+    }
+
+    public function mandarDatosBeagle(Request $request){
+
+        if($request->get('esproyectos') !== null && $request->get('esproyectos') == "1"){
+
+            $organismo = ($request->get('organismo') != "") ? $request->get('organismo') : null;
+            $linea = ($request->get('linea') != "") ? $request->get('linea') : null;
+            $estado = ($request->get('estado') != "") ? mb_strtolower($request->get('estado')) : null;
+            $presupuestomin = ($request->get('presupuestomin') != "") ? (float)$request->get('presupuestomin') : null;
+            $presupuestomax = ($request->get('presupuestomax') != "") ? (float)$request->get('presupuestomax') : null;
+ 
+            if($organismo !== null){
+                if($estado !== null){
+                    $proyectos = \App\Models\Proyectos::where('organismo', $organismo)->where('proyectos.Estado', $estado)
+                    ->where('creadoUsuario', 0);
+                }else{
+                    $proyectos = \App\Models\Proyectos::where('organismo', $organismo)
+                    ->where('creadoUsuario', 0);
+                }
+            }
+
+            if($proyectos){
+                if($linea !== null){
+                    $ayuda = \App\Models\Ayudas::find($linea);
+                    $proyectos->where('idAyudaAcronimo', $ayuda->IdConvocatoriaStr)->orWhere('IdAyuda', $linea);
+                }
+            }else{
+                if($linea !== null){
+                    $ayuda = \App\Models\Ayudas::find($linea);
+                    if($estado !== null){
+                        $proyectos = \App\Models\Proyectos::where('proyectos.Estado', $estado)
+                        ->where('creadoUsuario', 0)->where('idAyudaAcronimo', $ayuda->IdConvocatoriaStr)->orWhere('IdAyuda', $linea);
+                    }else{
+                        $proyectos = \App\Models\Proyectos::where('idAyudaAcronimo', $ayuda->IdConvocatoriaStr)
+                        ->where('creadoUsuario', 0);
+                    }
+                }
+            }
+
+            if($proyectos){
+                if($presupuestomin !== null && $presupuestomax !== null){
+                    $proyectos->where('presupuestoTotal', '>=', $presupuestomin)->where('presupuestoTotal', '<=', $presupuestomax);
+                }elseif($presupuestomin !== null && $presupuestomax === null){
+                    $proyectos->where('presupuestoTotal', '>=', $presupuestomin);
+                }elseif($presupuestomin === null && $presupuestomax !== null){
+                    $proyectos->where('presupuestoTotal', '<=', $presupuestomax);
+                }
+            }else{                
+                if($estado !== null){
+                    if($presupuestomin !== null && $presupuestomax !== null){
+                        $proyectos = \App\Models\Proyectos::where('IdConvocatoriaStr', $linea)->where('proyectos.Estado', $estado)
+                        ->where('creadoUsuario', 0)->where('presupuestoTotal', '>=', $presupuestomin)->where('presupuestoTotal', '<=', $presupuestomax);
+                    }elseif($presupuestomin !== null && $presupuestomax === null){
+                        $proyectos = \App\Models\Proyectos::where('IdConvocatoriaStr', $linea)->where('proyectos.Estado', $estado)
+                        ->where('creadoUsuario', 0)->where('presupuestoTotal', '>=', $presupuestomin);
+                    }elseif($presupuestomin === null && $presupuestomax !== null){
+                        $proyectos = \App\Models\Proyectos::where('IdConvocatoriaStr', $linea)->where('proyectos.Estado', $estado)
+                        ->where('creadoUsuario', 0)->where('presupuestoTotal', '<=', $presupuestomax);
+                    }
+                }else{
+                    if($presupuestomin !== null && $presupuestomax !== null){
+                        $proyectos = \App\Models\Proyectos::where('IdConvocatoriaStr', $linea)
+                        ->where('creadoUsuario', 0)->where('presupuestoTotal', '>=', $presupuestomin)->where('presupuestoTotal', '<=', $presupuestomax);
+                    }elseif($presupuestomin !== null && $presupuestomax === null){
+                        $proyectos = \App\Models\Proyectos::where('IdConvocatoriaStr', $linea)
+                        ->where('creadoUsuario', 0)->where('presupuestoTotal', '>=', $presupuestomin);
+                    }elseif($presupuestomin === null && $presupuestomax !== null){
+                        $proyectos = \App\Models\Proyectos::where('IdConvocatoriaStr', $linea)
+                        ->where('creadoUsuario', 0)->where('presupuestoTotal', '<=', $presupuestomax);
+                    }
+                }
+                
+            }
+            
+            if(isset($proyectos) && $proyectos->get()->count() > 0){
+                $zoho = new \App\Libs\ZohoCreatorV2();
+
+                $ayuda = null;
+                if($request->get('ayuda') !== null && $request->get('ayuda') != ""){
+                    $ayuda = \App\Models\Ayudas::find($request->get('ayuda'));
+                }
+
+                $chunk = array();
+                foreach($proyectos->get() as $proyecto){                    
+                    array_push($chunk, $proyecto->empresaPrincipal);
+                    if(json_decode($proyecto->empresasParticipantes, true) !== null){
+                        foreach(json_decode($proyecto->empresasParticipantes, true) as $cifParticipante){
+                            array_push($chunk, $cifParticipante);                                
+                        }
+                    }elseif($proyecto->participantes !== null){
+                        foreach($proyecto->participantes as $participante){
+                            array_push($chunk, $participante->cif_participante);                                
+                        }
+                    }                    
+                }
+
+                $chunk = array_values(array_unique($chunk));
+
+                foreach(array_chunk($chunk, 200) as $portion){
+
+                    $data = new stdClass();
+                    $data->Acronimo = $request->get('titulo');
+                    $data->Descripcion = $request->get('mensaje');
+                    $data->Pitch = ($request->get('speech') === null || $request->get('speech') == "") ? $request->get('mensaje') : $request->get('speech');
+                    $data->NIFSPendientes = json_encode($portion);
+                    $data->LinkAyuda = ($request->get('link') === null || $request->get('link') == "") ? '' : $request->get('link');
+                    $data->ResponsableAlCrear = "Auto";
+                    $data->ResponsableReAbrir = "Auto";
+                    $data->FechaMaxima = ($request->get('fechamax') === null || $request->get('fechamax') == "") ? Carbon::now()->addDays(7)->format('d-m-Y') : Carbon::createFromFormat('d/m/Y', $request->get('fechamax'))->format('d-m-Y');
+                    $data->Prioridad = ($request->get('prioridad') === null || $request->get('prioridad') == "") ? "Baja" : $request->get('prioridad');
+                    $data->UnicosInnovating = ($request->get('totalnifs') === null || $request->get('totalnifs') == "") ? 0 : $request->get('totalnifs');
+                    $data->RepetidosInnovating = ($request->get('totalnifsrepetidos') === null || $request->get('totalnifsrepetidos') == "") ? 0 : $request->get('totalnifsrepetidos');
+                    $data->DiasSeguimiento = 100;
+
+                    if($ayuda){
+                        if($ayuda->Inicio !== null){
+                            $data->FechaAberturaAyuda = Carbon::parse($ayuda->Inicio)->format('d-m-Y');
+                        }
+                        if($ayuda->Fin !== null){
+                            $data->FechaCierreAyuda =  Carbon::parse($ayuda->Fin)->format('d-m-Y');
+                        }
+                    }
+
+                    try{
+                        $response = $zoho->addRecords('PropuestasInnovating',$data);           
+                        //dd($response);
+                    }catch(Exception $e){
+                        Log::error($e->getMessage());
+                        return redirect()->route('admindatosbeagle')->withErrors("Error en el envio o la conexion con beagle");
+                    }               
+                }
+            }else{
+                return redirect()->route('admindatosbeagle')->withErrors('No hay empresas para mandar a beagle que coincidan con los filtros seleccionados');        
+            }
+
+            return redirect()->route('admindatosbeagle')->withSuccess('Enviados '.$proyectos->count().' proyectos con los filtros seleccionados a beagle en grupos de 200');
+            
+        }else{
+
+            $ayuda = null;
+            if($request->get('ayuda') !== null && $request->get('ayuda') != ""){
+                $ayuda = \App\Models\Ayudas::find($request->get('ayuda'));
+            }
+
+            $data = array();
+            $cifs = array();
+            $validador = 0;
+
+            $empresas = getElasticCompanies("", $request, 1, "empresas", 200);
+
+            if(isset($empresas->data) && !empty($empresas->data) && $empresas != "ups"){
+                $zoho = new \App\Libs\ZohoCreatorV2();                    
+                array_push($data, array_column($empresas->data, 'NIF'));
+            }
+
+            $total = 11;
+            if(isset($empresas->pagination) && isset($empresas->pagination->numTotalPages) && $empresas != "ups"){
+                $total = $empresas->pagination->numTotalPages;
+            }
+
+            for($i = 1; $i < $total; $i++){
+
+                $empresas = getElasticCompanies("", $request, $i, "empresas", 200);
+
+                if(isset($empresas->data) && !empty($empresas->data) && $empresas != "ups"){
+                    $zoho = new \App\Libs\ZohoCreatorV2();                    
+                    array_push($data, array_column($empresas->data, 'NIF'));
+                }elseif(isset($empresas->data) && !empty($empresas->data)){
+                    $validador++;
+                    Log::info("Respuesta elastic mandar a beagle:". json_encode($empresas));
+                    //return redirect()->back()->withErrors('Ha ocurrido un error en la consulta a elastic, borra la cache e intentalo de nuevo dentro de unos minutos');        
+                    if($validador > 2){
+                        break;
+                    }
+                }else{
+                    Log::error("Respuesta elastic mandar a beagle:". json_encode($empresas));
+                }
+            }
+                
+            foreach($data as $items){
+                foreach($items as $cif){
+                    $cifs[] = $cif;
+                }
+            }
+
+            if(!empty($data) && ! empty($cifs)){
+                $cifs = array_values(array_unique($cifs));
+                $data = new stdClass();
+                $data->Acronimo = $request->get('titulo');
+                $data->Descripcion = $request->get('mensaje');
+                $data->Pitch = ($request->get('speech') === null || $request->get('speech') == "") ? $request->get('mensaje') : $request->get('speech');
+                $data->NIFSPendientes = json_encode($cifs);
+                $data->LinkAyuda = ($request->get('link') === null || $request->get('link') == "") ? '' : $request->get('link');
+                $data->ResponsableAlCrear = "Auto";
+                $data->ResponsableReAbrir = "Auto";
+                $data->FechaMaxima = ($request->get('fechamax') === null || $request->get('fechamax') == "") ? Carbon::now()->addDays(7)->format('d-m-Y') : Carbon::createFromFormat('d/m/Y', $request->get('fechamax'))->format('d-m-Y');
+                $data->Prioridad = ($request->get('prioridad') === null || $request->get('prioridad') == "") ? "Baja" : $request->get('prioridad');
+                $data->UnicosInnovating = ($request->get('totalnifs') === null || $request->get('totalnifs') == "") ? 0 : $request->get('totalnifs');
+                $data->RepetidosInnovating = ($request->get('totalnifsrepetidos') === null || $request->get('totalnifsrepetidos') == "") ? 0 : $request->get('totalnifsrepetidos');
+                $data->DiasSeguimiento = 100;
+
+                if($ayuda){
+                    if($ayuda->Inicio !== null){
+                        $data->FechaAberturaAyuda = Carbon::parse($ayuda->Inicio)->format('d-m-Y');
+                    }
+                    if($ayuda->Fin !== null){
+                        $data->FechaCierreAyuda =  Carbon::parse($ayuda->Fin)->format('d-m-Y');
+                    }
+                }
+
+                try{
+                    $response = $zoho->addRecords('PropuestasInnovating',$data);  
+                    //dd($response);        
+                }catch(Exception $e){
+                    Log::error($e->getMessage());
+                    return redirect()->route('admindatosbeagle')->withErrors("Error en el envio o la conexion con beagle");
+                }
+            }
+
+
+            return redirect()->route('admindatosbeagle')->withSuccess('Enviados '.count($cifs).' cifs de la busqueda a beagle');
+        }
     }
 
 }

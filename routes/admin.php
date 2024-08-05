@@ -184,4 +184,5 @@ Route::middleware(['auth'])->middleware(CheckUserRole::class)->group(function() 
     ###RUTAS ENVIAR DATOS A BEAGLE
     Route::get('admin/datosbeagle', [\App\Http\Controllers\EnviarDatosBeagleController::class, 'datosBeagle'])->name('admindatosbeagle');
     Route::post('admin/superadminsearch', [\App\Http\Controllers\EnviarDatosBeagleController::class, 'superAdminSearch'])->name('adminsuperadminsearch');
+    Route::post('admin/mandardatosbeagle', [\App\Http\Controllers\EnviarDatosBeagleController::class, 'mandarDatosBeagle'])->name('adminmandardatosbeagle');
 });
