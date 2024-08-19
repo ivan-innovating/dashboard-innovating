@@ -637,6 +637,8 @@ class DashboardAyudaController extends Controller
             $convocatoria->Publicada = 0;
             $convocatoria->IdConvocatoriaStr = '';
             $convocatoria->naturalezaConvocatoria = '';
+            $convocatoria->esMetricable = 0;
+            $convocatoria->FondosAgotados = 0;
             $convocatoria->LastEditor = Auth::user()->email;
             $convocatoria->created_at = Carbon::now();
             $convocatoria->save();
@@ -645,7 +647,7 @@ class DashboardAyudaController extends Controller
             return redirect()->back()->withErrors('Error en la creación de la ayuda');
         }
 
-        return redirect()->route('editconvocatoria', $convocatoria->id);//$id);
+        return redirect()->route('admineditarconvocatoria', $convocatoria->id);//$id);
 
     }
 }
