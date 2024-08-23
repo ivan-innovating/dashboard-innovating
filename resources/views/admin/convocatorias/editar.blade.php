@@ -33,7 +33,7 @@
         @if($ayuda->organo !== null)
             <a href="{{config('app.innovatingurl')}}/ayuda/{{$ayuda->organo->url}}/{{$ayuda->Uri}}?preview=1" target="_blank" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-share"></i> Ver convocatoria</a>
         @elseif($ayuda->departamento !== null)
-            <a href="{{config('app.innovatingurl')}}/ayuda/{{$ayuda->deparamento->url}}/{{$ayuda->Uri}}?preview=1" target="_blank" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-share"></i> Ver convocatoria</a>
+            <a href="{{config('app.innovatingurl')}}/ayuda/{{$ayuda->departamento->url}}/{{$ayuda->Uri}}?preview=1" target="_blank" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-share"></i> Ver convocatoria</a>
         @endif
         <div class="text-right">
             <form method="post" action="{{route('adminpublicarconvocatoria')}}" class="publicarconvocatoria">
