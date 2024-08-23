@@ -30,6 +30,27 @@
                 @endforeach
             </div>
         @endif
+        @if($ayuda->organo !== null)
+            <a href="{{config('app.innovatingurl')}}/ayuda/{{$ayuda->organo->url}}/{{$ayuda->Uri}}?preview=1" target="_blank" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-share"></i> Ver convocatoria</a>
+        @elseif($ayuda->departamento !== null)
+            <a href="{{config('app.innovatingurl')}}/ayuda/{{$ayuda->deparamento->url}}/{{$ayuda->Uri}}?preview=1" target="_blank" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-share"></i> Ver convocatoria</a>
+        @endif
+        <div class="text-right">
+            <form method="post" action="{{route('adminpublicarconvocatoria')}}" class="publicarconvocatoria">
+                @csrf
+                <input type="hidden" name="id" value="{{$ayuda->id}}"/>            
+                @if($ayuda->Publicada == 1)                
+                    <input type="hidden" name="publicada" value="0"/>
+                    <button type="submit" class="btn btn-warning btn-md"><i class="fa-solid fa-eye-slash"></i> {{__('Pasar a borrador')}}</button><br/>
+                    <small class="text-muted">* {{__('Pasar a borrador una convocatoria, significa que la ayuda dejara de ser accesible publicamente(menos para superAdmin) y no aparecerá en los resultados de las búsquedas y en los perfiles financieros y simulados de las empresas')}}</small>
+                @else                
+                    <input type="hidden" name="publicada" value="1"/>
+                    <button type="submit" class="btn btn-primary btn-md"><i class="fa-solid fa-eye"></i> {{__('Publicar convocatoria')}}</button><br/>
+                    <small class="text-muted">* {{__('Pasar a publicada una convocatoria, significa que aparecerá en los resultados de las búsquedas y en los perfiles financieros y simulados de las empresas en caso de encajar')}}</small>
+                @endif
+            </form>
+        </div>      
+        <hr/>
         <form method="post" action="{{route('admineditconvocatoria')}}" class="editarconvocatoria">
             <h3>Información Principal</h3>
             <hr/>
@@ -1203,43 +1224,15 @@
         });
 
         $('.duallistbox').bootstrapDualListbox();
-        $("#publicada").on('change', function(e){
-            var id = "{{request()->route('id')}}";
-            var publicada = $(this).val();
-
+        $(".publicarconvocatoria").on('submit', function(e){
+            e.preventDefault();
+            var form = $(this);
             $.confirm({
                 title: 'Cambiar estado de publicación',
                 content: 'Vas a cambiar el estado de publicación de esta ayuda ¿estas seguro?',
                 buttons: {
                     ok:  function(){
-                        $.ajax({
-                            headers: {
-                                'X-CSRF-Token': '{{ csrf_token() }}',
-                            },
-                            url: "{{ route('updatepublicadaayuda') }}",
-                            type:'POST',
-                            data: {id: id, publicada: publicada},
-                            success: function(resp){
-                                $.confirm({
-                                    title: 'Estado actualizado',
-                                    content: resp,
-                                    buttons: {
-                                        ok: function(){
-                                            window.location.reload();
-                                        }
-                                    }
-                                });
-                                return true;
-                            },
-                            error: function(resp){
-                                console.log(resp);
-                                $.alert({
-                                    title: 'Error al actualizar estado',
-                                    content: resp.responseJSON
-                                });
-                                return false;
-                            }
-                        });
+                        $(form).unbind('submit').submit();    
                     },
                     cancel: function(){}
                 }

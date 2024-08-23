@@ -68,7 +68,7 @@
                 <tbody>
                     @if($ayudas->count() > 0)
                     @foreach($ayudas as $ayuda)
-                    <tr @if($ayuda->totalencajes == 0) class="bg-rojo text-white" @endif>
+                    <tr @if($ayuda->totalencajes == 0) class="bg-danger text-white" @endif>
                         <td class="text-center">
                             <input type="checkbox" name="updateExtinguida" class="updateExtinguida" value="{{$ayuda->id}}"/>
                         </td>

@@ -955,4 +955,23 @@ class DashboardConvocatoriasController extends Controller
 
         return redirect()->back()->withSuccess('Se ha borrado el encaje de esta convocatoria');
     }
+
+    public function publicarConvocatoria(Request $request){
+
+        $ayuda = \App\Models\Ayudas::find($request->get('id'));
+
+        if(!$ayuda){
+            return redirect()->back()->wihtErrors('No se puede publicar la convocatoria en este momento, intentalo de nuevo más tarde');
+        }
+
+        try{
+            $ayuda->Publicada = $request->get('publicada');
+            $ayuda->save();
+        }catch(Exception $e){
+            Log::error($e->getMessage());
+            return redirect()->back()->wihtErrors('No se puede publicar la convocatoria en este momento, intentalo de nuevo más tarde');
+        }
+
+        return redirect()->back()->withSuccess('Actualizado correctamente el estado de publicaciíon de esta convocatoria');
+    }
 }
