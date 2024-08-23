@@ -38,12 +38,12 @@
         <div class="text-left mt-3 mb-3">
             <h5 class="text-muted">Filtrar por Estado:</h5>
             <a class="btn @if(request()->get('Estado') == 'publicadas') btn-success @else btn-outline-success @endif btn-sm"
-                    href="{{route('dashboardayudasconvocatorias')}}?Estado=publicadas">Públicadas</a>
+                    href="{{route('adminconvocatorias')}}?Estado=publicadas">Públicadas</a>
             <a class="btn @if(request()->get('Estado') == 'nopublicadas') btn-info @else btn-outline-info @endif btn-sm"
-                    href="{{route('dashboardayudasconvocatorias')}}?Estado=nopublicadas">No públicadas</a>
+                    href="{{route('adminconvocatorias')}}?Estado=nopublicadas">No públicadas</a>
             <a class="btn @if(request()->get('Estado') == 'nuevas') btn-primary @else btn-outline-primary @endif btn-sm"
-                    href="{{route('dashboardayudasconvocatorias')}}?Estado=nuevas">Nuevas</a>
-            <a class="btn btn-outline-danger btn-sm" href="{{route('dashboardayudasconvocatorias')}}">Quitar filtro</a>
+                    href="{{route('adminconvocatorias')}}?Estado=nuevas">Nuevas</a>
+            <a class="btn btn-outline-danger btn-sm" href="{{route('adminconvocatorias')}}">Quitar filtro</a>
             <button class="btn btn-primary text-white" type="button" data-toggle="modal" data-target="#buscarConvocatoriaModal">Buscar convocatoria</button>
         </div>
         <div class="table-responsive">
