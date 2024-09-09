@@ -300,7 +300,6 @@
                                             <small class="description text-danger">{{ __('Extinguida')}}</small>
                                         @endif
                                     @endif
-                                
                                     </div>
                                 </div>
                             </div>
@@ -332,17 +331,15 @@
                                             <option value="{{$org->id}}" selected>
                                                 @if(isset($org->Acronimo)) 
                                                     {{$org->Acronimo}}
-                                                @else 
-                                                    {{\Illuminate\Support\Str::limit($org->Nombre, 45, '...')}}
                                                 @endif
+                                                {{\Illuminate\Support\Str::limit($org->Nombre, 85, '...')}}                                                
                                             </option>
                                         @else
                                             <option value="{{$org->id}}">
                                                 @if(isset($org->Acronimo)) 
                                                     {{$org->Acronimo}}
-                                                @else
-                                                    {{\Illuminate\Support\Str::limit($org->Nombre, 45, '...')}}
                                                 @endif
+                                                {{\Illuminate\Support\Str::limit($org->Nombre, 85, '...')}}                                                
                                             </option>
                                         @endif
                                     @endforeach
@@ -377,7 +374,39 @@
                             </div>
                             <div class="mb-2">
                                 <input type="number" class="form-control form-control-sm txt-azul" value="{{request()->get('presupuestomax')}}" placeholder="Presupuesto máximo" name="presupuestomax" steps="10000" min="0" max="99999999">
-                            </div>                                      
+                            </div>      
+                            <div class="mb-2">
+                                <div class="input-group date input-sm" id="inicio" data-target-input="nearest">
+                                    <input type="text" onkeydown="return false" name="inicio" value="{{request()->get('inicio')}}"
+                                        class="form-control form-control-sm datetimepicker-input-sm f67 txt-azul" data-target="#inicio" aria-describedby="iniciohelp" placeholder="{{__('Fecha inicio proyecto: DD/MM/YYYY')}}">
+                                    <div class="input-group-append" data-target="#inicio" data-toggle="datetimepicker">
+                                        <div class="input-group-text">
+                                            <i class="fa fa-calendar fa-sm"></i>
+                                        </div>
+                                    </div>
+                                    <div class="input-group-append" data-target="#inicio" data-toggle="clear">
+                                        <div class="input-group-text cleardate" id="cleardate" data-item="inicio">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <div class="input-group date input-sm" id="fin" data-target-input="nearest">
+                                    <input type="text" onkeydown="return false" name="fin" value="{{request()->get('fin')}}"
+                                        class="form-control form-control-sm datetimepicker-input-sm f67 txt-azul" data-target="#fin" aria-describedby="finhelp" placeholder="{{__('Fecha fin proyecto: DD/MM/YYYY')}}">
+                                    <div class="input-group-append" data-target="#fin" data-toggle="datetimepicker">
+                                        <div class="input-group-text">
+                                            <i class="fa fa-calendar fa-sm"></i>
+                                        </div>
+                                    </div>
+                                    <div class="input-group-append" data-target="#fin" data-toggle="clear">
+                                        <div class="input-group-text cleardate" id="cleardate" data-item="fin">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                                                
                         </div>
                     </div> 
                     <button type="submit" class="btn btn-primary">Buscar proyectos</button>
@@ -392,53 +421,71 @@
                     @else
                         <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#procesoventaProyectosModal">Mandar datos a Beagle</button>
                     @endif
-                    @foreach($proyectos->data as $proyecto)
-                        <div class="flex justify-start duration-350 mb-3 ease-in-out @if(!$loop->last) border-b @endif">  
-                            <div class="flex flex-col m-3">
-                                <i class="fa-solid fa-pen-ruler fa-lg text-muted"></i>
-                                <a href="{{config('app.innovatingurl')}}/proyectos/{{$proyecto->uri}}" class="txt-azul text-uppercase font-weight-bold">            
-                                    <b>
-                                        @if($proyecto->Acronimo) 
-                                            {{ $proyecto->Acronimo }} 
-                                        @else
-                                            {{\Illuminate\Support\Str::limit($proyecto->Titulo, 45, '...') }}
-                                        @endif
-                                    </b>
-                                </a>               
-                                <br/>
-                                @if($proyecto->Titulo != "" && $proyecto->Titulo !== null)
-                                <small class="font-weight-bold text-muted">{{\Illuminate\Support\Str::limit($proyecto->Titulo, 60, '...') }}</small>
-                                @endif
-                                @if($proyecto->TextoHtmlPartners != "")                                            
-                                    <!--{!! $proyecto->TextoHtmlPartners !!}-->            
-                                @endif
-                                <br/>
-                                @if($proyecto->Objetivo)
-                                <small class="description">
-                                    {!! \Illuminate\Support\Str::limit(ucfirst(mb_strtolower($proyecto->Objetivo)), 140, '...') !!}
-                                </small>
-                                @else
-                                <small class="description">
-                                    {{ __('No se ha definido un objetivo especifico para este proyecto') }}.
-                                </small>
-                                @endif
-                                <br/>
-                                @if($proyecto->Estado == "Tramitado")
-                                    @if($proyecto->FechaInicio) 
-                                    {{ $proyecto->FechaInicio }} | 
+                    @if(empty($proyectos->data))
+                        <p class="text-warning font-weight-bold"> * Debido al filtro de fechas que se realiza directamente sobre los resultados de elastic se han filtrado proyectos que se han obtenido desde elastic pero que no encajan con las de inicio o fin, esto es un arreglo provisional hasta que se pueda filtrar por fecha en elastic.</p>
+                    @else
+                        @foreach($proyectos->data as $proyecto)
+                            <div class="flex justify-start duration-350 mb-3 ease-in-out @if(!$loop->last) border-b @endif">  
+                                <div class="flex flex-col m-3">
+                                    @if($proyecto->uri == "")
+                                        <i class="fa-solid fa-pen-ruler fa-lg text-muted"></i> 
+                                        <span class="text-muted">            
+                                            <b>
+                                                @if($proyecto->Acronimo) 
+                                                    {{ $proyecto->Acronimo }} 
+                                                @else
+                                                    {{\Illuminate\Support\Str::limit($proyecto->Titulo, 45, '...') }}
+                                                @endif
+                                            </b>
+                                            filtrado por fecha inicio/fin:
+                                            Inicio: {{$proyecto->FechaInicio}} | Fin {{$proyecto->FechaFinal}}
+                                        </span>  
+                                    @else
+                                        <i class="fa-solid fa-pen-ruler fa-lg text-muted"></i>
+                                        <a href="{{config('app.innovatingurl')}}/proyectos/{{$proyecto->uri}}" class="txt-azul text-uppercase font-weight-bold">            
+                                            <b>
+                                                @if($proyecto->Acronimo) 
+                                                    {{ $proyecto->Acronimo }} 
+                                                @else
+                                                    {{\Illuminate\Support\Str::limit($proyecto->Titulo, 45, '...') }}
+                                                @endif
+                                            </b>
+                                        </a>              
                                     @endif 
-                                    <small class="txt-azul">{{ $proyecto->Estado }}</small>
-                                @elseif($proyecto->Estado == "Cerrado")
-                                    <small class="text-success description">{{ __('Financiado') }}</small>
-                                @elseif($proyecto->Estado == "Desestimado")
-                                    <small class="text-danger description">{{ __('Rechazado') }}</small>
-                                @else
-                                    <small class="text-success description">{{ $proyecto->Estado }}</small>
-                                @endif
-                            </div>                                                                                       
-                        </div>
-                    @endforeach
-
+                                    <br/>
+                                    @if($proyecto->Titulo != "" && $proyecto->Titulo !== null)
+                                    <small class="font-weight-bold text-muted">{{\Illuminate\Support\Str::limit($proyecto->Titulo, 60, '...') }}</small>
+                                    @endif
+                                    @if($proyecto->TextoHtmlPartners != "")                                            
+                                        <!--{!! $proyecto->TextoHtmlPartners !!}-->            
+                                    @endif
+                                    <br/>
+                                    @if($proyecto->Objetivo)
+                                    <small class="description">
+                                        {!! \Illuminate\Support\Str::limit(ucfirst(mb_strtolower($proyecto->Objetivo)), 140, '...') !!}
+                                    </small>
+                                    @else
+                                    <small class="description">
+                                        {{ __('No se ha definido un objetivo especifico para este proyecto') }}.
+                                    </small>
+                                    @endif
+                                    <br/>
+                                    @if($proyecto->Estado == "Tramitado")
+                                        @if($proyecto->FechaInicio) 
+                                        {{ $proyecto->FechaInicio }} | 
+                                        @endif 
+                                        <small class="txt-azul">{{ $proyecto->Estado }}</small>
+                                    @elseif($proyecto->Estado == "Cerrado")
+                                        <small class="text-success description">{{ __('Financiado') }}</small>
+                                    @elseif($proyecto->Estado == "Desestimado")
+                                        <small class="text-danger description">{{ __('Rechazado') }}</small>
+                                    @else
+                                        <small class="text-success description">{{ $proyecto->Estado }}</small>
+                                    @endif
+                                </div>                                                                                       
+                            </div>
+                        @endforeach
+                    @endif
                 @endif
                 </div>
             </div>
@@ -528,7 +575,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="ayuda">{{ __('Selecciona ayuda de innovating.works') }}</label><br/>
-                                <select name="ayuda" class="form-control select2" title="{{__('Ayudas')}}" style="width: 100%;">
+                                <select name="ayuda" class="form-control modal1" title="{{__('Ayudas')}}" style="width: 100%;">
+                                    <option></option>
                                     @foreach($selectayudas as $option)
                                         @if($option->organo !== null)
                                         <option value="{{$option->id}}">
@@ -623,7 +671,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="ayuda">{{ __('Selecciona ayuda de innovating.works') }}</label><br/>
-                                <select name="ayuda" class="form-control select2" title="{{__('Ayudas')}}" style="width: 100%;" @if(request()->get('linea') !== null) disabled @endif>
+                                <select name="ayuda" class="form-control modal2" title="{{__('Ayudas')}}" style="width: 100%;">
+                                    <option></option>
                                     @php
                                         $url = null;
                                     @endphp
@@ -717,6 +766,18 @@
                 allowClear: true,
                 theme: "classic",
             })
+            $('.modal1').select2({
+                allowClear: true,
+                placeholder: "Selecciona una ayuda",
+                theme: "classic",
+                dropdownParent: $('#procesoventaModal')
+            });
+            $('.modal2').select2({
+                allowClear: true,
+                placeholder: "Selecciona una ayuda",
+                theme: "classic",
+                dropdownParent: $('#procesoventaProyectosModal')
+            });
         });        
         $("#fecha").datetimepicker({
             format: 'DD/MM/YYYY',
@@ -728,6 +789,17 @@
             viewMode: 'days',
             minDate: new Date(),
         });
+
+        $("#inicio").datetimepicker({
+            format: 'DD/MM/YYYY',
+            viewMode: 'days',
+        });
+
+        $("#fin").datetimepicker({
+            format: 'DD/MM/YYYY',
+            viewMode: 'days',
+        });
+
         $('form').on('submit', function(){
             var $preloader = $('.preloader');
             $preloader.css('height', '100%');

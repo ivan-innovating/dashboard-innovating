@@ -128,7 +128,29 @@ class EnviarDatosBeagleController extends Controller
                         if(isset($proyectos->pagination) && $proyectos->pagination->totalItems > 0 && $proyectos->pagination->totalItems < 2000){
                             array_push($ids,$proyecto->ID);
                         } 
-        
+                                
+                        if($proyecto->FechaInicio != "01-01-1800" && $request->get('inicio') !== null){
+                            if(Carbon::createFromFormat('d-m-Y',$proyecto->FechaInicio) <= Carbon::createFromFormat('d/m/Y', $request->get('inicio'))){                                
+                                $proyecto->Proyecto_id = $proyecto->ID;
+                                $proyecto->uri = "";
+                                $proyecto->proyecto_acronimo = "";
+                                $proyecto->proyecto_titulo = "";
+                                $proyectos->pagination->totalItems--;
+                                continue;
+                            }
+                        }
+
+                        if($proyecto->FechaFinal != "01-01-1800" && $request->get('fin') !== null){
+                            if(Carbon::createFromFormat('d-m-Y', $proyecto->FechaFinal) >= Carbon::createFromFormat('d/m/Y',$request->get('fin'))){
+                                $proyecto->Proyecto_id = $proyecto->ID;
+                                $proyecto->uri = "";
+                                $proyecto->proyecto_acronimo = "";
+                                $proyecto->proyecto_titulo = "";
+                                $proyectos->pagination->totalItems--;
+                                continue;
+                            }
+                        }
+
                         $proyecto->Proyecto_id = $proyecto->ID;
                         $proyecto->uri = $proyecto->UrlProyecto;
                         $proyecto->proyecto_acronimo = $proyecto->Acronimo;
@@ -177,15 +199,21 @@ class EnviarDatosBeagleController extends Controller
                     $org = \App\Models\Departamentos::find($idorganismo->organismo);
                 }
                 if($org){
-                    $organismos = $organismos->push($org);
+                    if(!$organismos->contains('Nombre', $org->Nombre)){
+                        $organismos = $organismos->push($org);
+                    }
                 }
             }elseif($idorganismo->organismo === null && $idorganismo->IdAyuda !== null){
                 $ayuda = \App\Models\Ayudas::find($idorganismo->IdAyuda);
                 if($ayuda){
                     if($ayuda->organo){
-                        $organismos = $organismos->push($ayuda->organo);
+                        if(!$organismos->contains('Nombre', $ayuda->organo->Nombre)){
+                            $organismos = $organismos->push($ayuda->organo);
+                        }
                     }elseif($ayuda->departamento){
-                        $organismos = $organismos->push($ayuda->departamento);
+                        if(!$organismos->contains('Nombre', $ayuda->departamento->Nombre)){
+                            $organismos = $organismos->push($ayuda->departamento);
+                        }
                     }
                 }
             }elseif($idorganismo->organismo !== null && $idorganismo->IdAyuda !== null){
@@ -194,13 +222,17 @@ class EnviarDatosBeagleController extends Controller
                     $org = \App\Models\Departamentos::find($idorganismo->organismo);
                 }
                 if($org){
-                    $organismos = $organismos->push($org);
+                    if(!$organismos->contains('Nombre', $org->Nombre)){
+                        $organismos = $organismos->push($org);
+                    }
+                    
                 }
             }
         }
 
         $organismos = $organismos->unique();
         $organismos = $organismos->sortBy('Nombre');
+        
 
         $selectayudas = \App\Models\Ayudas::whereIn('Estado', ['Abierta','Próximamente'])->where('Publicada', 1)->get();
         
@@ -436,6 +468,20 @@ class EnviarDatosBeagleController extends Controller
                     }
                 }
                 
+            }
+
+            if(isset($proyectos) && $proyectos->get()->count() > 0){
+
+                if($request->get('inicio') !== null){
+                    $inicio = Carbon::createFromFormat('d/m/Y', $request->get('inicio'));
+                    $proyectos->where('inicio', '>=', $inicio);                                 
+                }
+
+                if($request->get('fin') !== null){                    
+                    $fin = Carbon::createFromFormat('d/m/Y', $request->get('fin'));
+                    $proyectos->where('fin', '<=', $fin);
+                }
+
             }
             
             if(isset($proyectos) && $proyectos->get()->count() > 0){

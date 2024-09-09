@@ -1256,5 +1256,61 @@
                 behavior: 'smooth'
             });          
         }
+
+        $("#checkmeses").on("click", function(e){
+            if($(this).prop('checked')){
+                $('#fechamaxcontent').addClass('d-none');
+                $('input[name="fechamax"]').val('');
+                $('#mesescontent').removeClass('d-none');
+            }else{
+                $('#mesescontent').addClass('d-none');
+                $('input[name="meses"]').val('');
+            }
+            if($("#checkfecha").prop('checked')){
+                $("#checkfecha").prop('checked', false);
+            }
+        });
+
+        $("#checkfecha").on("click", function(e){
+            if($(this).prop('checked')){
+                $('#mesescontent').addClass('d-none');
+                $('input[name="meses"]').val('');
+                $('#fechamaxcontent').removeClass('d-none');
+            }else{
+                $('#fechamaxcontent').addClass('d-none');
+                $('input[name="fechamax"]').val('');
+            }
+            if($("#checkmeses").prop('checked')){
+                $("#checkmeses").prop('checked', false);
+            }
+        });
+
+        $("#checkmesesmin").on("click", function(e){
+            if($(this).prop('checked')){
+                $('#fechamincontent').addClass('d-none');
+                $('input[name="fechamin"]').val('');
+                $('#mesesmincontent').removeClass('d-none');
+            }else{
+                $('#mesesmincontent').addClass('d-none');
+                $('input[name="mesesmin"]').val('');
+            }
+            if($("#checkfechamin").prop('checked')){
+                $("#checkfechamin").prop('checked', false);
+            }
+        });
+
+        $("#checkfechamin").on("click", function(e){
+            if($(this).prop('checked')){
+                $('#mesesmincontent').addClass('d-none');
+                $('input[name="mesesmin"]').val('');
+                $('#fechamincontent').removeClass('d-none');
+            }else{
+                $('#fechamincontent').addClass('d-none');
+                $('input[name="fechamin"]').val('');
+            }
+            if($("#checkmesesmin").prop('checked')){
+                $("#checkmesesmin").prop('checked', false);
+            }
+        });
     </script>
 @stop   

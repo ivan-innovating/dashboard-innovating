@@ -9,7 +9,7 @@
 @section('content')
 <div class="card">
 	<div class="card-header">
-		<h3 class="card-title">Crear Encaje para la Convocatoria {{$ayuda->Titulo}}</h3>
+		<h3 class="card-title">Crear Encaje para la Convocatoria {{$ayuda->Titulo}} <a href="{{route('admineditarconvocatoria', $ayuda->id)}}" class="btn btn-primary btn-sm"><i class="fa-solid fa-share"></i> Volver a editar convocatoria</a></h3>
 		<div class="card-tools">
 			<button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
 			<i class="fas fa-minus"></i>
@@ -60,13 +60,29 @@
                             <option value="Válidos">Válidos</option>
                             <option value="Excluidos">Excluidos</option>                        
                         </select><br/>
-                        <div id="cnaesaddencajes" class="d-none">
-                            <label for="cnaesencaje">CNAES</label><br/>
-                            <select name="cnaesencaje[]" multiple class="duallistbox" style="height: 250px !important;">                  
-                                @foreach($cnaes as $cnae)
-                                    <option value="{{$cnae->Id_zoho}}">{{$cnae->Nombre}}</option>
-                                @endforeach                               
-                            </select>
+                        <div id="cnaes" @if($ayuda->OpcionCNAE != "Todos") class="form-group" @else class="form-group d-none" @endif>
+                            <div class="form-group">
+                                <label for="cnaes">CNAES</label><br/>
+                                <select name="cnaes[]" multiple class="duallistbox" style="height: 250px !important;">
+                                    @if($ayuda->CNAES != "null" && !empty($ayuda->CNAES))
+                                        @foreach($cnaes as $cnae)
+                                            @if($ayuda->CNAES)
+                                                @if(in_array($cnae->Id_zoho, json_decode($ayuda->CNAES, true)))
+                                                    <option value="{{$cnae->Id_zoho}}" selected="selected">{{$cnae->Nombre}}</option>
+                                                @else
+                                                    <option value="{{$cnae->Id_zoho}}">{{$cnae->Nombre}}</option>
+                                                @endif
+                                            @else
+                                                <option value="{{$cnae->Id_zoho}}">{{$cnae->Nombre}}</option>
+                                            @endif
+                                        @endforeach
+                                    @else
+                                        @foreach($cnaes as $cnae)
+                                            <option value="{{$cnae->Id_zoho}}">{{$cnae->Nombre}}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
