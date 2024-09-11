@@ -344,6 +344,7 @@ class ElasticApi
         }elseif(isset($encaje->PresupuestoMin) && $encaje->PresupuestoMin > 0){
             if($encaje->DuracionMax !== null){
                 $duracion = round($encaje->DuracionMax/12,0,PHP_ROUND_HALF_UP);
+                $duracion = ($duracion <= 0) ? 1: $duracion;
                 $presupuesto = $encaje->PresupuestoMin/$duracion;
             }else{
                 $presupuesto = $encaje->PresupuestoMin/2;

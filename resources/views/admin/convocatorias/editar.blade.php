@@ -738,6 +738,7 @@
                     <option value="no definido" @if($ayuda->Dnsh == "no definido") selected @endif>Sin DNSH</option>
                     <option value="opcional" @if($ayuda->Dnsh == "opcional") selected @endif>Opcional</option>
                     <option value="obligatorio" @if($ayuda->Dnsh == "obligatorio") selected @endif>Obligatorio</option>
+                    <option value="declaracion" @if($ayuda->Dnsh == "declaracion") selected @endif>Declaración Responsable</option>
                 </select>
             </div>
             @if($ayuda->Dnsh == "opcional")
