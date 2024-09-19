@@ -14,9 +14,9 @@ class DashboardScrapperController extends Controller
     public function scrappers(Request $request){
 
         if($request->get('organismo') === null || $request->get('organismo') == ""){
-            $scrapperdata = \App\Models\ProyectosRawData::where('updated_at', '>=', Carbon::now()->subDays(30))->paginate(100);
+            $scrapperdata = \App\Models\ProyectosRawData::where('updated_at', '>=', Carbon::now()->subDays(120))->paginate(100);
         }else{
-            $scrapperdata = \App\Models\ProyectosRawData::where('id_organismo', $request->get('organismo'))->where('updated_at', '>=', Carbon::now()->subDays(30))->paginate(100);
+            $scrapperdata = \App\Models\ProyectosRawData::where('id_organismo', $request->get('organismo'))->where('updated_at', '>=', Carbon::now()->subDays(120))->paginate(100);
         }
 
         $organismos = \App\Models\ProyectosRawData::select('id_organismo')->distinct()->get();
@@ -41,7 +41,7 @@ class DashboardScrapperController extends Controller
             }
         }
 
-        $datos = \App\Models\ProyectosRawData::where('id_organismo', $id)->where('updated_at', '>=', Carbon::now()->subDays(30))->first();
+        $datos = \App\Models\ProyectosRawData::where('id_organismo', $id)->where('updated_at', '>=', Carbon::now()->subDays(120))->first();
         $columnas = array_keys(json_decode($datos->jsondata, true));        
         $convocatorias = \App\Models\Ayudas::whereNotNull('Acronimo')->where('Organismo', $id)->orderby('Acronimo')->get();
         asort($columnas);
@@ -103,7 +103,7 @@ class DashboardScrapperController extends Controller
             return abort(419);
         }
 
-        $datos = \App\Models\ProyectosRawData::where('id_organismo', $regla->id_organismo)->where('updated_at', '>=', Carbon::now()->subDays(30))->first();
+        $datos = \App\Models\ProyectosRawData::where('id_organismo', $regla->id_organismo)->where('updated_at', '>=', Carbon::now()->subDays(120))->first();
         $columnas = array_keys(json_decode($datos->jsondata, true));
         asort($columnas);
         $organismos = \App\Models\ProyectosRawData::select('id_organismo')->distinct()->get();
@@ -174,7 +174,7 @@ class DashboardScrapperController extends Controller
         $columnas = array();
 
         if($request->get('organismo') !== null || $request->get('organismo') != ""){
-            $datos = \App\Models\ProyectosRawData::where('id_organismo', $request->get('organismo'))->where('updated_at', '>=', Carbon::now()->subDays(30))->first();
+            $datos = \App\Models\ProyectosRawData::where('id_organismo', $request->get('organismo'))->where('updated_at', '>=', Carbon::now()->subDays(120))->first();
             $columnas = array_keys(json_decode($datos->jsondata, true));
             
             if($request->get('columnas') !== null || !empty($request->get('columnas'))){
