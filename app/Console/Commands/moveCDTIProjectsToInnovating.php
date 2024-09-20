@@ -35,6 +35,7 @@ class moveCDTIProjectsToInnovating extends Command
         '/ slp$/', '/ slu$/', '/ slne$/', '/ slg$/', '/ sll$/', '/ s.a.$/');
 
         foreach($rawdata as $data){
+
             $values = json_decode($data->jsondata, true);
             $tipoConvocatoria = "Individual";
             if(str_ends_with($values['TituloProyecto'], ")")){                
@@ -49,7 +50,7 @@ class moveCDTIProjectsToInnovating extends Command
             $uri = str_replace(" ","-",trim(cleanUriProyectosBeforeSave(seo_quitar_tildes(mb_strtolower($values['TituloProyecto'])))));
             $unix = substr(time(),-6);
             $expediente = "INV".$data->id.$unix;
-            $nombre = preg_replace($ocurrences, '', $values['RazonSocial'], 1);
+            $nombre = rtrim(preg_replace($ocurrences, '', $values['RazonSocial'], 1),",");
             $convocatoria = (isset($values['id_convocatoria'])) ? \App\Models\Ayudas::find($values['id_convocatoria']) : null;
             $organismo = \App\Models\Organos::find($data->id_organismo);
             if(!$organismo){
@@ -63,6 +64,14 @@ class moveCDTIProjectsToInnovating extends Command
 
             if(!$proyecto){
                 $proyecto = new \App\Models\Proyectos();
+
+                $ambitoConvocatoria = "nacional";
+                $entidad = \App\Models\Entidad::where('CIF', $values['CodigoEntidad'])->first();
+                if($entidad){
+                    if($entidad->pais != "ES"){
+                        $ambitoConvocatoria = "internacional";
+                    }
+                }
 
                 try{
                     $proyecto->id_raw_data = $data->id;
@@ -79,7 +88,7 @@ class moveCDTIProjectsToInnovating extends Command
                     $proyecto->importado = 1;
                     $proyecto->esEuropeo = 0;
                     $proyecto->tipoConvocatoria = $tipoConvocatoria;
-                    $proyecto->ambitoConvocatoria = 'nacional'; ##comprobar si es el organismo tiene pais "ES" = nacional sino es internacional
+                    $proyecto->ambitoConvocatoria = $ambitoConvocatoria; ##comprobar si es el organismo tiene pais "ES" = nacional sino es internacional
                     $proyecto->Fecha = Carbon::parse($values['FechaAprobacion'])->format('Y-m-d');
                     $proyecto->Estado = "Cerrado";
                     $proyecto->Tematicas = $values['AreaSectorialN1'].",".$values['AreaSectorialN2'];
@@ -112,11 +121,11 @@ class moveCDTIProjectsToInnovating extends Command
                     \App\Models\Participantes::updateOrCreate(
                         [
                             'cif_participante' => $values['CodigoEntidad'],
-                            'nombre_participante' => $nombre,
                             'id_proyecto' => $proyecto->id,
                             'id_concesion' => null,
                         ],
                         [
+                            'nombre_participante' => $nombre,
                             'presupuesto_socio' => ($values['Presupuesto'] !== null && $values['Presupuesto'] > 0) ? (float)$values['Presupuesto'] : null,
                             'ayuda_eq_socio' => ($values['AportacionCDTI'] !== null && $values['AportacionCDTI'] > 0) ? (float)$values['AportacionCDTI'] : null,
                         ]
@@ -125,7 +134,15 @@ class moveCDTIProjectsToInnovating extends Command
                     Log::error($e->getMessage());
                     return COMMAND::FAILURE;
                 }
-            }else{                
+            }else{   
+
+                $ambitoConvocatoria = "nacional";
+                $entidad = \App\Models\Entidad::where('CIF', $values['CodigoEntidad'])->first();
+                if($entidad){
+                    if($entidad->pais != "ES"){
+                        $ambitoConvocatoria = "internacional";
+                    }
+                }
 
                 try{
                     if((float)$values['Presupuesto'] > (float)$proyecto->PresupuestoSocio){
@@ -140,6 +157,8 @@ class moveCDTIProjectsToInnovating extends Command
                         $proyecto->empresasParticipantes = json_encode($participantes);
                         $proyecto->NumParticipantes = $proyecto->NumParticipantes +1;
                     }
+                    $proyecto->ambitoConvocatoria = $ambitoConvocatoria; ##comprobar si es el organismo tiene pais "ES" = nacional sino es internacional
+                    $proyecto->idAyuda = (isset($values['id_convocatoria'])) ? $values['id_convocatoria'] : null;
                     $proyecto->PresupuestoTotal = $proyecto->PresupuestoTotal + $values['Presupuesto'];
                     $proyecto->AyudaEq = $proyecto->AyudaEq + $values['AportacionCDTI'];
                     $proyecto->save();
@@ -152,11 +171,11 @@ class moveCDTIProjectsToInnovating extends Command
                     \App\Models\Participantes::updateOrCreate(
                         [
                             'cif_participante' => $values['CodigoEntidad'],
-                            'nombre_participante' => $nombre,
                             'id_proyecto' => $proyecto->id,
                             'id_concesion' => null                            
                         ],
                         [
+                            'nombre_participante' => $nombre,
                             'presupuesto_socio' => ($values['Presupuesto'] !== null && $values['Presupuesto'] > 0) ? (float)$values['Presupuesto'] : null,
                             'ayuda_eq_socio' => ($values['AportacionCDTI'] !== null && $values['AportacionCDTI'] > 0) ? (float)$values['AportacionCDTI'] : null,
                         ]
