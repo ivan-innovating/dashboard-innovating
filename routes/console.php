@@ -4,9 +4,9 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
+/*Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote')->hourly();
+})->purpose('Display an inspiring quote')->hourly();*/
 
 //Schedule::command('import:cordis_json')->timezone('Europe/Madrid')->cron('5 4 * * 6')->withoutOverlapping();
 Schedule::command('app:apply-rules-on-projects')->timezone('Europe/Madrid')->dailyAt('03:13')->withoutOverlapping();
