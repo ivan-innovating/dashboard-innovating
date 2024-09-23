@@ -595,4 +595,31 @@ class DashboardEmpresasController extends Controller
         return redirect()->back()->withSuccess('Actualizada la solicitud de validación a "ACEPTADA".');
     }
 
+    private function calculaImasD($cif){
+
+        if(!$cif){
+            return abort(419);
+        }
+
+        try{
+            Artisan::call('calcula:I+D', [
+                'cif' =>  $cif
+            ]);
+        }catch(Exception $e){
+            Log::error($e->getMessage());
+            return abort(419);
+        }
+
+        try{
+            Artisan::call('elastic:companies', [
+                'cif' =>  $cif
+            ]);
+        }catch(Exception $e){
+            Log::error($e->getMessage());
+            return abort(419);
+        }
+
+        return true;
+    }
+
 }
