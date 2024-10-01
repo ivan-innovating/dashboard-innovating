@@ -184,20 +184,26 @@
             <div class="form-group">
                 <label for="intereses"><span class="text-danger">*</span> Perfil Financiación</label><br/>
                 <select name="intereses[]" class="selectpicker" multiple data-width="100%" data-live-search="true" title="Selecciona...">
-                    @foreach($intereses as $interes)
-                        @if($interes->id == 1 || $interes->id == 10 || $interes->id == 11)
-                            @continue
-                        @endif
-                        @if($ayuda->PerfilFinanciacion && $ayuda->PerfilFinanciacion != "null")
-                            @if(in_array($interes->Id_zoho, json_decode($ayuda->PerfilFinanciacion, true)))
-                                <option value="{{$interes->Id_zoho}}" selected="selected">{{$interes->Nombre}}</option>
+                    @if($intereses !== null && is_array($intereses))
+                        @foreach($intereses as $interes)
+                            @if($interes->id == 1 || $interes->id == 10 || $interes->id == 11)
+                                @continue
+                            @endif
+                            @if($ayuda->PerfilFinanciacion && $ayuda->PerfilFinanciacion != "null")
+                                @if(in_array($interes->Id_zoho, json_decode($ayuda->PerfilFinanciacion, true)))
+                                    <option value="{{$interes->Id_zoho}}" selected="selected">{{$interes->Nombre}}</option>
+                                @else
+                                    <option value="{{$interes->Id_zoho}}">{{$interes->Nombre}}</option>
+                                @endif
                             @else
                                 <option value="{{$interes->Id_zoho}}">{{$interes->Nombre}}</option>
                             @endif
-                        @else
+                        @endforeach
+                    @else
+                        @foreach($intereses as $interes)
                             <option value="{{$interes->Id_zoho}}">{{$interes->Nombre}}</option>
-                        @endif
-                    @endforeach
+                        @endforeach
+                    @endif
                 </select>
             </div>
             <div class="form-group">
@@ -935,12 +941,18 @@
                 <div class="form-group">
                     <label for="encajeintereses"><span class="text-danger">*</span> Perfil Financiación</label><br/>
                     <select name="encajeintereses[]" id="encajeintereses" class="selectpicker" multiple data-width="100%" data-live-search="true" title="Selecciona..." required>
-                        @foreach($intereses as $interes)
-                            @if($interes->id == 1 || $interes->id == 10 || $interes->id == 11)
-                                @continue
-                            @endif
-                            <option value="{{$interes->Id_zoho}}" @if(in_array($interes->Id_zoho, json_decode($encaje->PerfilFinanciacion))) selected @endif>{{$interes->Nombre}}</option>
-                        @endforeach
+                        @if($intereses !== null && is_array($intereses))
+                            @foreach($intereses as $interes)
+                                @if($interes->id == 1 || $interes->id == 10 || $interes->id == 11)
+                                    @continue
+                                @endif
+                                <option value="{{$interes->Id_zoho}}" @if(in_array($interes->Id_zoho, json_decode($encaje->PerfilFinanciacion))) selected @endif>{{$interes->Nombre}}</option>
+                            @endforeach
+                        @else
+                            @foreach($intereses as $interes)
+                                <option value="{{$interes->Id_zoho}}">{{$interes->Nombre}}</option>
+                            @endforeach
+                        @endif
                     </select>
                 </div>
                 <div class="form-group">
