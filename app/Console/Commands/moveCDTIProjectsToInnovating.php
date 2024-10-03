@@ -47,7 +47,7 @@ class moveCDTIProjectsToInnovating extends Command
             }            
 
             $values['CodigoEntidad'] = str_replace("-","",$values['CodigoEntidad']);
-            $uri = str_replace(" ","-",trim(cleanUriProyectosBeforeSave(seo_quitar_tildes(mb_strtolower($values['TituloProyecto'])))));
+            $uri = substr(str_replace(" ","-",trim(cleanUriProyectosBeforeSave(seo_quitar_tildes(mb_strtolower($values['TituloProyecto']))))),0,254);
             $unix = substr(time(),-6);
             $expediente = "INV".$data->id.$unix;
             $nombre = rtrim(preg_replace($ocurrences, '', $values['RazonSocial'], 1),",");
