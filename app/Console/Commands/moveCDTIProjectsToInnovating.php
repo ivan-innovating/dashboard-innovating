@@ -47,7 +47,7 @@ class moveCDTIProjectsToInnovating extends Command
             }            
 
             $values['CodigoEntidad'] = str_replace("-","",$values['CodigoEntidad']);
-            $uri = substr(str_replace(" ","-",trim(cleanUriProyectosBeforeSave(seo_quitar_tildes(mb_strtolower($values['TituloProyecto']))))),0,254);
+            $uri = substr(str_replace(" ","-",trim(cleanUriProyectosBeforeSave(seo_quitar_tildes(mb_strtolower(preg_match('/^[\p{L}\p{N} .-]+$/',str_replace(array("\r", "\n"), '', $values['TituloProyecto']))))))),0,254);
             $unix = substr(time(),-6);
             $expediente = "INV".$data->id.$unix;
             $nombre = rtrim(preg_replace($ocurrences, '', $values['RazonSocial'], 1),",");
@@ -73,6 +73,9 @@ class moveCDTIProjectsToInnovating extends Command
                     }
                 }
 
+                $this->info("ultimo titulo proyecto añadido: ".substr($values['TituloProyecto'],0, 254));
+                $this->info("ultima fecha proyecto añadida: ".Carbon::parse($values['FechaAprobacion'])->format('Y-m-d'));
+
                 try{
                     $proyecto->id_raw_data = $data->id;
                     $proyecto->organismo = $data->id_organismo;
@@ -83,7 +86,7 @@ class moveCDTIProjectsToInnovating extends Command
                     $proyecto->empresasParticipantes = json_encode([]);
                     $proyecto->NumParticipantes = 1;
                     $proyecto->idAyuda = (isset($values['id_convocatoria'])) ? $values['id_convocatoria'] : null;
-                    $proyecto->Titulo = $values['TituloProyecto']; 
+                    $proyecto->Titulo = substr(preg_match('/^[\p{L}\p{N} .-]+$/',str_replace(array("\r", "\n"), '', $values['TituloProyecto'])),0,254); 
                     $proyecto->uri = $uri;               
                     $proyecto->importado = 1;
                     $proyecto->esEuropeo = 0;
