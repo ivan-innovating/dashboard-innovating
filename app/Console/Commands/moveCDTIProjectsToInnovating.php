@@ -29,7 +29,7 @@ class moveCDTIProjectsToInnovating extends Command
     public function handle()
     {
         //
-        $rawdata = \App\Models\ProyectosRawData::where('updated_at', '>=', Carbon::now()->subDays(1))->get();
+        $rawdata = \App\Models\ProyectosRawData::where('updated_at', '>=', Carbon::now()->subDays(3))->get();
 
         $ocurrences = array('/ s.a.$/', '/ s.l.$/', '/ S.A.$/', '/ S.L.$/', '/ SA$/', '/ SL$/', '/ SAU$/', '/ S.A.U.$/', '/ s.a.u.$/', '/ sa.$/', '/ sl.$/', '/ sau.$/', '/ S.A.L.$/', '/ S.L.L$/', '/ S L$/', '/ s.a.$/',
         '/ slp$/', '/ slu$/', '/ slne$/', '/ slg$/', '/ sll$/', '/ s.a.$/');
@@ -47,7 +47,9 @@ class moveCDTIProjectsToInnovating extends Command
             }            
 
             $values['CodigoEntidad'] = str_replace("-","",$values['CodigoEntidad']);
-            $uri = substr(str_replace(" ","-",trim(cleanUriProyectosBeforeSave(seo_quitar_tildes(mb_strtolower(preg_match('/^[\p{L}\p{N} .-]+$/',str_replace(array("\r", "\n"), '', $values['TituloProyecto']))))))),0,254);
+            $uri = substr(str_replace(" ","-",trim(cleanUriProyectosBeforeSave(seo_quitar_tildes(mb_strtolower(preg_replace("/[^A-Za-z0-9À-Ùà-ú@.!? ]/",'',str_replace(array("\r", "\n"), '', $values['TituloProyecto']))))))),0,254);
+            $titulo = substr(preg_replace("/[^A-Za-z0-9À-Ùà-ú@.!? ]/u",' ', str_replace(array("\r", "\n"), '', $values['TituloProyecto'])),0, 254);
+
             $unix = substr(time(),-6);
             $expediente = "INV".$data->id.$unix;
             $nombre = rtrim(preg_replace($ocurrences, '', $values['RazonSocial'], 1),",");
@@ -59,8 +61,8 @@ class moveCDTIProjectsToInnovating extends Command
 
             $acronimo = ($organismo->Acronimo !== null && $organismo->Acronimo != "") ? $organismo->Acronimo : substr($organismo->Nombre,0, 5); #{AcronimoOrganismo){values['IdTipologia']}{unixtime};
             $acronimo .= $values['IdTipologia'].$unix;
-            
-            $proyecto = \App\Models\Proyectos::where('organismo', $data->id_organismo)->where('Titulo', $values['TituloProyecto'])->first();
+
+            $proyecto = \App\Models\Proyectos::where('organismo', $data->id_organismo)->where('Titulo', $titulo)->first();
 
             if(!$proyecto){
                 $proyecto = new \App\Models\Proyectos();
@@ -73,8 +75,8 @@ class moveCDTIProjectsToInnovating extends Command
                     }
                 }
 
-                $this->info("ultimo titulo proyecto añadido: ".substr($values['TituloProyecto'],0, 254));
-                $this->info("ultima fecha proyecto añadida: ".Carbon::parse($values['FechaAprobacion'])->format('Y-m-d'));
+                $this->info($data->id.": ultimo titulo proyecto añadido: ".$titulo." (".$uri.")");
+                $this->info($data->id.": ultima fecha proyecto añadida: ".Carbon::parse($values['FechaAprobacion'])->format('Y-m-d'));
 
                 try{
                     $proyecto->id_raw_data = $data->id;
@@ -86,7 +88,7 @@ class moveCDTIProjectsToInnovating extends Command
                     $proyecto->empresasParticipantes = json_encode([]);
                     $proyecto->NumParticipantes = 1;
                     $proyecto->idAyuda = (isset($values['id_convocatoria'])) ? $values['id_convocatoria'] : null;
-                    $proyecto->Titulo = substr(preg_match('/^[\p{L}\p{N} .-]+$/',str_replace(array("\r", "\n"), '', $values['TituloProyecto'])),0,254); 
+                    $proyecto->Titulo = $titulo; 
                     $proyecto->uri = $uri;               
                     $proyecto->importado = 1;
                     $proyecto->esEuropeo = 0;
