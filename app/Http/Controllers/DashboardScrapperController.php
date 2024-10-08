@@ -41,7 +41,7 @@ class DashboardScrapperController extends Controller
             }
         }
 
-        $datos = \App\Models\ProyectosRawData::where('id_organismo', $id)->where('updated_at', '>=', Carbon::now()->subDays(120))->first();
+        $datos = \App\Models\ProyectosRawData::where('id_organismo', $id)->where('updated_at', '>=', Carbon::now()->subYears(25))->first();
         $columnas = array_keys(json_decode($datos->jsondata, true));        
         $convocatorias = \App\Models\Ayudas::whereNotNull('Acronimo')->where('Organismo', $id)->orderby('Acronimo')->get();
         asort($columnas);
