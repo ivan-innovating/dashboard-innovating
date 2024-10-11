@@ -29,7 +29,7 @@ class moveCDTIProjectsToInnovating extends Command
     public function handle()
     {
         //
-        $rawdata = \App\Models\ProyectosRawData::where('updated_at', '>=', Carbon::now()->subDays(3))->get();
+        $rawdata = \App\Models\ProyectosRawData::where('updated_at', '>=', Carbon::now()->subDays(2))->get();
 
         $ocurrences = array('/ s.a.$/', '/ s.l.$/', '/ S.A.$/', '/ S.L.$/', '/ SA$/', '/ SL$/', '/ SAU$/', '/ S.A.U.$/', '/ s.a.u.$/', '/ sa.$/', '/ sl.$/', '/ sau.$/', '/ S.A.L.$/', '/ S.L.L$/', '/ S L$/', '/ s.a.$/',
         '/ slp$/', '/ slu$/', '/ slne$/', '/ slg$/', '/ sll$/', '/ s.a.$/');
