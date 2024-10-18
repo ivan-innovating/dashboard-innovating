@@ -946,7 +946,11 @@
                                 @if($interes->id == 1 || $interes->id == 10 || $interes->id == 11)
                                     @continue
                                 @endif
+                                @if($encaje->PerfilFinanciacion !== null && $encaje->PerfilFinanciacion != "null" && is_array(json_decode($encaje->PerfilFinanciacion)))
                                 <option value="{{$interes->Id_zoho}}" @if(in_array($interes->Id_zoho, json_decode($encaje->PerfilFinanciacion))) selected @endif>{{$interes->Nombre}}</option>
+                                @else
+                                <option value="{{$interes->Id_zoho}}">{{$interes->Nombre}}</option>
+                                @endif
                             @endforeach
                         @else
                             @foreach($intereses as $interes)
