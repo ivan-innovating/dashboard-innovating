@@ -183,15 +183,15 @@
             </div>
             <div class="form-group">
                 <label for="intereses"><span class="text-danger">*</span> Perfil Financiación</label><br/>
-                <select name="intereses[]" class="selectpicker" multiple data-width="100%" data-live-search="true" title="Selecciona...">
-                    @if($intereses !== null && is_array($intereses))
+                <select name="intereses[]" class="selectpicker" multiple data-width="100%" data-live-search="true" title="Selecciona..." required>
+                    @if($intereses !== null)
                         @foreach($intereses as $interes)
                             @if($interes->id == 1 || $interes->id == 10 || $interes->id == 11)
                                 @continue
                             @endif
-                            @if($ayuda->PerfilFinanciacion && $ayuda->PerfilFinanciacion != "null")
-                                @if(in_array($interes->Id_zoho, json_decode($ayuda->PerfilFinanciacion, true)))
-                                    <option value="{{$interes->Id_zoho}}" selected="selected">{{$interes->Nombre}}</option>
+                            @if($ayuda->PerfilFinanciacion !== null && $ayuda->PerfilFinanciacion != "null" && is_array(json_decode($ayuda->PerfilFinanciacion)))
+                                @if(in_array($interes->Id_zoho, json_decode($ayuda->PerfilFinanciacion)))
+                                    <option value="{{$interes->Id_zoho}}" selected>{{$interes->Nombre}}</option>
                                 @else
                                     <option value="{{$interes->Id_zoho}}">{{$interes->Nombre}}</option>
                                 @endif
@@ -941,7 +941,7 @@
                 <div class="form-group">
                     <label for="encajeintereses"><span class="text-danger">*</span> Perfil Financiación</label><br/>
                     <select name="encajeintereses[]" id="encajeintereses" class="selectpicker" multiple data-width="100%" data-live-search="true" title="Selecciona..." required>
-                        @if($intereses !== null && is_array($intereses))
+                        @if($intereses !== null)
                             @foreach($intereses as $interes)
                                 @if($interes->id == 1 || $interes->id == 10 || $interes->id == 11)
                                     @continue
