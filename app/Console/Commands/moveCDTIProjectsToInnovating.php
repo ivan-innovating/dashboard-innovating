@@ -29,7 +29,7 @@ class moveCDTIProjectsToInnovating extends Command
     public function handle()
     {
         //
-        $rawdata = \App\Models\ProyectosRawData::where('updated_at', '>=', Carbon::now()->subDays(2))->get();
+        $rawdata = \App\Models\ProyectosRawData::where('updated_at', '>=', Carbon::now()->subDays(7))->get();
 
         $ocurrences = array('/ s.a.$/', '/ s.l.$/', '/ S.A.$/', '/ S.L.$/', '/ SA$/', '/ SL$/', '/ SAU$/', '/ S.A.U.$/', '/ s.a.u.$/', '/ sa.$/', '/ sl.$/', '/ sau.$/', '/ S.A.L.$/', '/ S.L.L$/', '/ S L$/', '/ s.a.$/',
         '/ slp$/', '/ slu$/', '/ slne$/', '/ slg$/', '/ sll$/', '/ s.a.$/');
@@ -149,6 +149,10 @@ class moveCDTIProjectsToInnovating extends Command
                     }
                 }
 
+                if(isset($values['id_convocatoria'])){
+                    $convocatoria = \App\Models\Ayudas::find($values['id_convocatoria']);
+                }
+
                 try{
                     if((float)$values['Presupuesto'] > (float)$proyecto->PresupuestoSocio){
                         $proyecto->empresaPrincipal = $values['CodigoEntidad'];
@@ -162,6 +166,18 @@ class moveCDTIProjectsToInnovating extends Command
                         $proyecto->empresasParticipantes = json_encode($participantes);
                         $proyecto->NumParticipantes = $proyecto->NumParticipantes +1;
                     }
+                    if($convocatoria){
+                        $proyecto->tituloAyuda = $convocatoria->Titulo;   
+                        $proyecto->idAyudaAcronimo = $convocatoria->IdConvocatoriaStr;
+                        #si convocatoria tipoFinanPublica => #Subvención = fondo || #Préstamo = credito || #Subvención/Préstamo = fondo y credito
+                        if(in_array("Fondo perdido", json_decode($convocatoria->TipoFinanciacion),true) && in_array("Crédito", json_decode($convocatoria->TipoFinanciacion),true)){
+                            $proyecto->tipoFinanPublica = "Subvención/Préstamo";    
+                        }elseif(in_array("Fondo perdido", json_decode($convocatoria->TipoFinanciacion),true) && !in_array("Crédito", json_decode($convocatoria->TipoFinanciacion),true)){
+                            $proyecto->tipoFinanPublica = "Subvención";    
+                        }elseif(!in_array("Fondo perdido", json_decode($convocatoria->TipoFinanciacion),true) && in_array("Crédito", json_decode($convocatoria->TipoFinanciacion),true)){
+                            $proyecto->tipoFinanPublica = "Préstamo";    
+                        }
+                    }        
                     $proyecto->ambitoConvocatoria = $ambitoConvocatoria; ##comprobar si es el organismo tiene pais "ES" = nacional sino es internacional
                     $proyecto->idAyuda = (isset($values['id_convocatoria'])) ? $values['id_convocatoria'] : null;
                     $proyecto->PresupuestoTotal = $proyecto->PresupuestoTotal + $values['Presupuesto'];
