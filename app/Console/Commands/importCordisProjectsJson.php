@@ -8,16 +8,28 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
+##########
+/*
+    Logica para actualizar datos CORDIS, importante realizarlo siempre en este orden, 
+    1. subir los json a su carpeta en el S3
+    1.2 Si es necesario borrar todos los proyectos y participantes de los proyectos antes de importa
+    2. pasar el nombre de la carpeta S3 como parámetro al comando import:cordis_json 
+    3. ejecutar primero el comando app:move-projects-cordis-to-innovating, crear proyectos en innovating
+    4. despues app:move-organizations-cordis-to-innovating crear los participantes y las emrpesas si es necesario en innovating(en caso de no existir)
+*/
+##########
 class importCordisProjectsJson extends Command
 {
-
-    const ORGANISMO = 6523;
+    const HORIZONEUROPE = 6523;
+    const H2020 = 6522;
+    const FP7 = 6521;
+    const FP6 = 6520;
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'import:cordis_json';
+    protected $signature = 'import:cordis_json {folder}';
 
     /**
      * The console command description.
@@ -46,7 +58,14 @@ class importCordisProjectsJson extends Command
 
         $this->info(now());
 
-        $lastimport = \App\Models\Settings::where('group', 'scrapper')->where('name', 'cordis_lastimport')->first();
+        $folder = $this->argument('folder');
+
+        if($folder === null){
+            $this->info('No se ha especificado el argumento directorio de los json');
+            return COMMAND::FAILURE;
+        }
+
+        $lastimport = \App\Models\Settings::where('group', 'scrapper')->where('name', 'cordis_lastimport_'.$folder)->first();
 
         if($lastimport){
             $checkdate = Carbon::parse(json_decode($lastimport->payload, true)['fecha'])->subDays(2);
@@ -54,13 +73,13 @@ class importCordisProjectsJson extends Command
             $checkdate = Carbon::now()->subDays(2);
         }
         
-        if(Storage::disk('s3_files')->exists('proyectos/import/organization.json')){
+        /*if(Storage::disk('s3_files')->exists('proyectos/import/'.$folder.'/organization.json')){
             
-            $last_modified = Storage::disk('s3_files')->lastModified('proyectos/import/organization.json');
+            $last_modified = Storage::disk('s3_files')->lastModified('proyectos/import/'.$folder.'/organization.json');
             $fecha = Carbon::parse(Carbon::createFromTimestamp($last_modified)->toDateTimeString())->addDays(1); 
 
             if($fecha > $checkdate){
-                $organizations = json_decode(Storage::disk('s3_files')->get('proyectos/import/organization.json'), true);
+                $organizations = json_decode(Storage::disk('s3_files')->get('proyectos/import/'.$folder.'/organization.json'), true);
                 foreach($organizations as $organization){
 
                     if($organization['vatNumber'] !== null && $organization['vatNumber'] !== ""){
@@ -113,7 +132,7 @@ class importCordisProjectsJson extends Command
 
                 try{
                     $lastimport->group = "scrapper";
-                    $lastimport->name = "cordis_lastimport";
+                    $lastimport->name = "cordis_lastimport_".$folder;
                     $lastimport->locked = 0;
                     $lastimport->payload = json_encode(['fecha' => $fecha]);
                     $lastimport->save();
@@ -123,16 +142,16 @@ class importCordisProjectsJson extends Command
                 }
             }
 
-        }
+        }*/
 
-        if(Storage::disk('s3_files')->exists('proyectos/import/project.json')){
+        if(Storage::disk('s3_files')->exists('proyectos/import/'.$folder.'/project.json')){
             
-            $last_modified = Storage::disk('s3_files')->lastModified('proyectos/import/project.json');
+            $last_modified = Storage::disk('s3_files')->lastModified('proyectos/import/'.$folder.'/project.json');
             $fecha = Carbon::createFromTimestamp($last_modified); 
 
             if($fecha > $checkdate){
 
-                $projects = json_decode(Storage::disk('s3_files')->get('proyectos/import/project.json'), true);
+                $projects = json_decode(Storage::disk('s3_files')->get('proyectos/import/'.$folder.'/project.json'), true);
 
                 foreach($projects as $project){
 
@@ -142,14 +161,25 @@ class importCordisProjectsJson extends Command
                         $projectrawdata = new \App\Models\ProjectsCordisRawData();
                     }
 
+                    $idOrganismo = self::HORIZONEUROPE;
+                    if($folder == "h2020"){
+                        $idOrganismo = self::H2020;
+                    }elseif($folder == "fp7"){
+                        $idOrganismo = self::FP7;
+                    }elseif($folder == "fp7"){
+                        $idOrganismo = self::FP6;
+                    }
+
+                    $titulo = substr(preg_replace("/[^A-Za-z0-9À-Ùà-ú@.!? ]/u",' ', str_replace(array("\r", "\n"), '', $project['title'])),0, 254);
+
                     try{
                        $projectrawdata->project_id = $project['id'];
-                       $projectrawdata->id_organismo = self::ORGANISMO;
+                       $projectrawdata->id_organismo = $idOrganismo;
                        $projectrawdata->acronym =  mb_convert_encoding(str_replace(["“","”"], "",$project['acronym']), "UTF-8");
                        $projectrawdata->contentUpdateDate = $project['contentUpdateDate'];
                        $projectrawdata->ecMaxContribution = $project['ecMaxContribution'];
                        $projectrawdata->ecSignatureDate = $project['ecSignatureDate'];
-                       $projectrawdata->endDate = $project['endDate'];
+                       $projectrawdata->endDate = ($project['endDate'] == "") ? $project['ecSignatureDate'] : $project['endDate'];
                        $projectrawdata->frameworkProgramme = $project['frameworkProgramme'];
                        $projectrawdata->fundingScheme = $project['fundingScheme'];
                        $projectrawdata->grantDoi = $project['grantDoi'];
@@ -159,7 +189,7 @@ class importCordisProjectsJson extends Command
                        $projectrawdata->rcn = $project['rcn'];
                        $projectrawdata->status = $project['status'];
                        $projectrawdata->subCall = $project['subCall'];
-                       $projectrawdata->title = substr(mb_convert_encoding(str_replace(["“","”"], "", $project['title']), "UTF-8"),0,190);
+                       $projectrawdata->title = $titulo;
                        $projectrawdata->topics = $project['topics'];
                        $projectrawdata->totalCost = $project['totalCost'];
                        $projectrawdata->save();
@@ -175,7 +205,7 @@ class importCordisProjectsJson extends Command
                 
                 try{
                     $lastimport->group = "scrapper";
-                    $lastimport->name = "cordis_lastimport";
+                    $lastimport->name = "cordis_lastimport_".$folder;
                     $lastimport->locked = 0;
                     $lastimport->payload = json_encode(['fecha' => $fecha]);
                     $lastimport->save();
@@ -187,13 +217,13 @@ class importCordisProjectsJson extends Command
             
         }
 
-        if(Storage::disk('s3_files')->exists('proyectos/import/euroSciVoc.json')){
+        if(Storage::disk('s3_files')->exists('proyectos/import/'.$folder.'/euroSciVoc.json')){
             
-            $last_modified = Storage::disk('s3_files')->lastModified('proyectos/import/euroSciVoc.json');
+            $last_modified = Storage::disk('s3_files')->lastModified('proyectos/import/'.$folder.'/euroSciVoc.json');
             $fecha = Carbon::createFromTimestamp($last_modified)->toDateTimeString(); 
             
             if($fecha > $checkdate){
-                $scivoc = json_decode(Storage::disk('s3_files')->get('proyectos/import/euroSciVoc.json'), true);
+                $scivoc = json_decode(Storage::disk('s3_files')->get('proyectos/import/'.$folder.'/euroSciVoc.json'), true);
 
                 foreach($scivoc as $sci){
 
@@ -236,7 +266,7 @@ class importCordisProjectsJson extends Command
                 
                 try{
                     $lastimport->group = "scrapper";
-                    $lastimport->name = "cordis_lastimport";
+                    $lastimport->name = "cordis_lastimport_".$folder;
                     $lastimport->locked = 0;
                     $lastimport->payload = json_encode(['fecha' => $fecha]);
                     $lastimport->save();
@@ -247,13 +277,13 @@ class importCordisProjectsJson extends Command
             }
         }
 
-        if(Storage::disk('s3_files')->exists('proyectos/import/webLink.json')){
+        if(Storage::disk('s3_files')->exists('proyectos/import/'.$folder.'/webLink.json')){
 
-            $last_modified = Storage::disk('s3_files')->lastModified('proyectos/import/webLink.json');
+            $last_modified = Storage::disk('s3_files')->lastModified('proyectos/import/'.$folder.'/webLink.json');
             $fecha = Carbon::createFromTimestamp($last_modified)->toDateTimeString(); 
 
             if($fecha > $checkdate){
-                $weblinks = json_decode(Storage::disk('s3_files')->get('proyectos/import/webLink.json'), true);
+                $weblinks = json_decode(Storage::disk('s3_files')->get('proyectos/import/'.$folder.'/webLink.json'), true);
 
                 foreach($weblinks as $weblink){
                     $projectrawdata = \App\Models\ProjectsCordisRawData::where('project_id', $weblink['projectID'])->first();
@@ -277,7 +307,7 @@ class importCordisProjectsJson extends Command
                 
                 try{
                     $lastimport->group = "scrapper";
-                    $lastimport->name = "cordis_lastimport";
+                    $lastimport->name = "cordis_lastimport_".$folder;
                     $lastimport->locked = 0;
                     $lastimport->payload = json_encode(['fecha' => $fecha]);
                     $lastimport->save();
@@ -289,13 +319,13 @@ class importCordisProjectsJson extends Command
             
         }
 
-        if(Storage::disk('s3_files')->exists('proyectos/import/legalBasis.json')){
+        if(Storage::disk('s3_files')->exists('proyectos/import/'.$folder.'/legalBasis.json')){
 
-            $last_modified = Storage::disk('s3_files')->lastModified('proyectos/import/legalBasis.json');
+            $last_modified = Storage::disk('s3_files')->lastModified('proyectos/import/'.$folder.'/legalBasis.json');
             $fecha = Carbon::createFromTimestamp($last_modified)->toDateTimeString(); 
             
             if($fecha > $checkdate){
-                $legalbasis = json_decode(Storage::disk('s3_files')->get('proyectos/import/legalBasis.json'), true);
+                $legalbasis = json_decode(Storage::disk('s3_files')->get('proyectos/import/'.$folder.'/legalBasis.json'), true);
 
                 foreach($legalbasis as $legal){
                     $projectrawdata = \App\Models\ProjectsCordisRawData::where('project_id', $legal['projectID'])->first();
@@ -329,7 +359,7 @@ class importCordisProjectsJson extends Command
                 
                 try{
                     $lastimport->group = "scrapper";
-                    $lastimport->name = "cordis_lastimport";
+                    $lastimport->name = "cordis_lastimport_".$folder;
                     $lastimport->locked = 0;
                     $lastimport->payload = json_encode(['fecha' => $fecha]);
                     $lastimport->save();

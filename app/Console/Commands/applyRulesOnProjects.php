@@ -88,8 +88,6 @@ class applyRulesOnProjects extends Command
             }
         }
 
-
-        
         return COMMAND::SUCCESS;
     }
 }

@@ -7,6 +7,16 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
+##########
+/*
+    Logica para actualizar datos CORDIS, importante realizarlo siempre en este orden, 
+    1. subir los json a su carpeta en el S3
+    1.2 Si es necesario borrar todos los proyectos y participantes de los proyectos antes de importa
+    2. pasar el nombre de la carpeta S3 como parámetro al comando import:cordis_json 
+    3. ejecutar primero el comando app:move-projects-cordis-to-innovating, crear proyectos en innovating
+    4. despues app:move-organizations-cordis-to-innovating crear los participantes y las emrpesas si es necesario en innovating(en caso de no existir)
+*/
+##########
 class moveOrganizationsCordisToInnovating extends Command
 {
     /**

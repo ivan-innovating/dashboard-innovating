@@ -6,6 +6,16 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
+##########
+/*
+    Logica para actualizar datos CORDIS, importante realizarlo siempre en este orden, 
+    1. subir los json a su carpeta en el S3
+    1.2 Si es necesario borrar todos los proyectos y participantes de los proyectos antes de importa
+    2. pasar el nombre de la carpeta S3 como parámetro al comando import:cordis_json 
+    3. ejecutar primero el comando app:move-projects-cordis-to-innovating, crear proyectos en innovating
+    4. despues app:move-organizations-cordis-to-innovating crear los participantes y las emrpesas si es necesario en innovating(en caso de no existir)
+*/
+##########
 class moveProjectsCordisToInnovating extends Command
 {
     /**
@@ -38,7 +48,7 @@ class moveProjectsCordisToInnovating extends Command
                 $proyecto = new \App\Models\Proyectos();
             }
 
-            $uri = cleanUriBeforeSave(str_replace(" ","-",mb_strtolower(quitar_tildes($project->title))));
+            $uri = substr(str_replace(" ","-",trim(cleanUriProyectosBeforeSave(seo_quitar_tildes(mb_strtolower(preg_replace("/[^A-Za-z0-9À-Ùà-ú@.!? ]/",'',str_replace(array("\r", "\n"), '', $project->title))))))),0,254);
 
             try{                
                 $proyecto->empresaPrincipal = "XXX".$project->id."XXX";
@@ -46,7 +56,8 @@ class moveProjectsCordisToInnovating extends Command
                 $proyecto->Descripcion = $project->objective;
                 $proyecto->Titulo = $project->title;
                 $proyecto->Acronimo = $project->acronym;
-                $proyecto->presupuestoTotal = $project->totalCost;
+                $proyecto->presupuestoTotal = ($project->totalCost == 0) ? $project->ecMaxContribution : $project->totalCost;
+                $proyecto->ecMaxContribution = $project->ecMaxContribution;
                 $proyecto->tags = $project->keywords;
                 $proyecto->Tipo = "publico";
                 $proyecto->Estado = "Cerrado";
